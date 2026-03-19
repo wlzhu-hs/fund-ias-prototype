@@ -113,7 +113,7 @@
   <div class="sep"></div>
   <div class="logo">Fund IAS · 实体基金</div>
   <div class="sep"></div>
-  <div class="frame-name" id="frame-label">当前页面：<span id="frame-title">F01 基金实体列表页</span></div>
+  <div class="frame-name" id="frame-label">当前页面：<span id="frame-title">F00 · 虚拟基金列表</span></div>
   <div class="spacer"></div>
   <div class="btn-group">
     <button class="tb-btn" onclick="goBack()" title="返回上一步">← 返回</button>
@@ -124,8 +124,8 @@
 <!-- 左侧导航面板 -->
 <div id="nav-panel">
   <h3>框架列表</h3>
-  <div class="nav-item active" onclick="goto('f01')" data-frame="f01">F01 基金实体列表页</div>
-  <div class="nav-item" onclick="goto('f00')" data-frame="f00">F00 虚拟基金列表</div>
+  <div class="nav-item" onclick="goto('f01')" data-frame="f01">F01 基金实体列表页</div>
+  <div class="nav-item active" onclick="goto('f00')" data-frame="f00">F00 虚拟基金列表</div>
   <div class="nav-sep"></div>
   <div class="nav-item" onclick="goto('f02a')" data-frame="f02a">F02a 实体详情·基本信息</div>
   <div class="nav-item" onclick="goto('f02b')" data-frame="f02b">F02b 实体详情·出资人管理</div>
@@ -148,27 +148,42 @@
 <div id="stage">
 
   <!-- ===== F00 虚拟基金列表 (1440×900) ===== -->
-  <div class="frame-wrap fw-900" id="fw-f00">
+  <div class="frame-wrap fw-900 active" id="fw-f00">
     <img src="frames/F00-virtual-fund-list.png" alt="F00 虚拟基金列表">
-    <!-- 点击行查看虚拟基金详情 -->
-    <div class="hs" data-tip="查看 RMBVI 详情" onclick="goto('f03')"
-         style="left:15.3%;top:22%;width:77.8%;height:4.4%"></div>
-    <div class="hs" data-tip="查看 USDVI 详情" onclick="goto('f03')"
-         style="left:15.3%;top:27%;width:77.8%;height:4.4%"></div>
-    <!-- 左侧菜单：基金实体 -->
-    <div class="hs" data-tip="进入 基金实体 列表" onclick="goto('f01')"
-         style="left:2.5%;top:17.3%;width:13%;height:4%"></div>
+    <!-- 基金名称列点击 → F03（不是整行）F00: 1440×900, 基金简称列x:290~640 -->
+    <div class="hs" data-tip="查看 RMBVI" onclick="goto('f03')"
+         style="left:19.6%;top:26.7%;width:24.9%;height:6.1%"></div>
+    <div class="hs" data-tip="查看 RMBV" onclick="goto('f03')"
+         style="left:19.6%;top:32.9%;width:24.9%;height:6.1%"></div>
+    <div class="hs" data-tip="查看 USD III" onclick="goto('f03')"
+         style="left:19.6%;top:39.1%;width:24.9%;height:6.1%"></div>
+    <div class="hs" data-tip="查看 USD II" onclick="goto('f03')"
+         style="left:19.6%;top:45.3%;width:24.9%;height:6.1%"></div>
+    <div class="hs" data-tip="查看 RMBIV" onclick="goto('f03')"
+         style="left:19.6%;top:51.6%;width:24.9%;height:6.1%"></div>
+    <!-- 查看按钮列 x:1212, 每行 y:240/296/352/408/464 -->
+    <div class="hs" data-tip="查看" onclick="goto('f03')"
+         style="left:83.8%;top:26.7%;width:2%;height:6.1%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f03')"
+         style="left:83.8%;top:32.9%;width:2%;height:6.1%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f03')"
+         style="left:83.8%;top:39.1%;width:2%;height:6.1%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f03')"
+         style="left:83.8%;top:45.3%;width:2%;height:6.1%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f03')"
+         style="left:83.8%;top:51.6%;width:2%;height:6.1%"></div>
+    <!-- 侧边栏：基金实体 → F01 (x:0-200, y:159-195) -->
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
+         style="left:0%;top:17.7%;width:13.9%;height:4%"></div>
   </div>
 
   <!-- ===== F01 基金实体列表页 (1440×900) ===== -->
-  <div class="frame-wrap fw-900 active" id="fw-f01">
+  <div class="frame-wrap fw-900" id="fw-f01">
     <img src="frames/F01-fund-entity-list.png" alt="F01 基金实体列表页">
 
-    <!-- 左侧菜单导航 -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f01')"
-         style="left:2.5%;top:10.3%;width:13%;height:1.8%"></div>
-    <div class="hs" data-tip="虚拟基金列表" onclick="goto('f00')"
-         style="left:2.5%;top:17.3%;width:13%;height:4%"></div>
+    <!-- 侧边栏：基金列表 → F00 (y:80~110/900) -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
 
     <!-- 顶部操作按钮 -->
     <div class="hs" data-tip="+ 新建实体" onclick="goto('f05')"
@@ -240,6 +255,9 @@
   <div class="frame-wrap fw-960" id="fw-f02a">
     <img src="frames/F02a-entity-detail-basic.png" alt="F02a 实体详情基本信息">
 
+    <!-- 侧边栏（F02a 1440×960：y:74~114 基金列表, y:136~176 基金实体 active） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:7.7%;width:13.1%;height:4.2%"></div>
     <!-- 面包屑：基金实体 → 返回列表 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
@@ -261,11 +279,14 @@
   <div class="frame-wrap fw-900" id="fw-f02b">
     <img src="frames/F02b-entity-detail-investor.png" alt="F02b 实体详情出资人管理">
 
+    <!-- 侧边栏（F02b 1440×900） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
     <!-- 面包屑 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
 
-    <!-- 编辑按钮 -->
+    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
     <div class="hs" data-tip="编辑" onclick="goto('f06')"
          style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
 
@@ -280,17 +301,29 @@
     <!-- + 新增出资人 -->
     <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')"
          style="left:86.4%;top:23.6%;width:6.9%;height:3.6%"></div>
+    <!-- 出资人列表"编辑"按钮 → F09（x:1316~1366, 行高40px）-->
+    <div class="hs" data-tip="编辑出资人 1" onclick="goto('f09')"
+         style="left:91.4%;top:33.3%;width:3.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 2" onclick="goto('f09')"
+         style="left:91.4%;top:37.8%;width:3.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 3" onclick="goto('f09')"
+         style="left:91.4%;top:42.2%;width:3.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 4" onclick="goto('f09')"
+         style="left:91.4%;top:46.7%;width:3.5%;height:4.4%"></div>
   </div>
 
   <!-- ===== F02c 实体详情·投资项目 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f02c">
     <img src="frames/F02c-entity-detail-projects.png" alt="F02c 实体详情投资项目">
 
+    <!-- 侧边栏（F02b 1440×900） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
     <!-- 面包屑 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
 
-    <!-- 编辑按钮 -->
+    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
     <div class="hs" data-tip="编辑" onclick="goto('f06')"
          style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
 
@@ -307,11 +340,14 @@
   <div class="frame-wrap fw-900" id="fw-f02d">
     <img src="frames/F02d-entity-detail-history.png" alt="F02d 实体详情修改记录">
 
+    <!-- 侧边栏（F02b 1440×900） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
     <!-- 面包屑 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
 
-    <!-- 编辑按钮 -->
+    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
     <div class="hs" data-tip="编辑" onclick="goto('f06')"
          style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
 
@@ -328,9 +364,15 @@
   <div class="frame-wrap fw-900" id="fw-f03">
     <img src="frames/F03-virtual-fund-detail-drawer.png" alt="F03 虚拟基金详情">
 
+    <!-- 侧边栏（F03 1440×900，200px宽，基金列表 active） -->
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
+         style="left:0%;top:17.7%;width:13.9%;height:4%"></div>
     <!-- 面包屑：返回虚拟基金列表 -->
     <div class="hs" data-tip="返回 虚拟基金列表" onclick="goto('f00')"
          style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+    <!-- 右上角"查看"按钮 → F02a（Drawer 内，x:1346, y:11, w:60, h:28） -->
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')"
+         style="left:93.5%;top:1.2%;width:4.2%;height:3.1%"></div>
 
     <!-- + 关联基金 按钮 -->
     <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')"
@@ -364,6 +406,11 @@
   <div class="frame-wrap fw-1100" id="fw-f05">
     <img src="frames/F05-new-entity-form.png" alt="F05 新建实体表单">
 
+    <!-- 侧边栏（F05 1440×1100） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:6%;width:13.1%;height:3%"></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
+         style="left:0%;top:14%;width:13.1%;height:3%"></div>
     <!-- 面包屑：返回列表 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
@@ -379,6 +426,11 @@
   <div class="frame-wrap fw-1100" id="fw-f06">
     <img src="frames/F06-edit-entity-form.png" alt="F06 编辑实体页面">
 
+    <!-- 侧边栏（F06 1440×1100） -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
+         style="left:0%;top:6%;width:13.1%;height:3%"></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
+         style="left:0%;top:14%;width:13.1%;height:3%"></div>
     <!-- 面包屑 -->
     <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
          style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
@@ -453,7 +505,7 @@
 
 <script>
 // ---- 状态 ----
-let currentFrame = 'f01';
+let currentFrame = 'f00';
 let history = [];
 let navOpen = false;
 let scale = 1;
