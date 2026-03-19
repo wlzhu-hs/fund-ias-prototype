@@ -150,348 +150,203 @@
   <!-- ===== F00 虚拟基金列表 (1440×900) ===== -->
   <div class="frame-wrap fw-900 active" id="fw-f00">
     <img src="frames/F00-virtual-fund-list.png?v=2" alt="F00 虚拟基金列表">
-    <!-- 基金名称列点击 → F03（不是整行）F00: 1440×900, 基金简称列x:290~640 -->
-    <div class="hs" data-tip="查看 RMBVI" onclick="goto('f03')"
-         style="left:19.6%;top:26.7%;width:24.9%;height:6.1%"></div>
-    <div class="hs" data-tip="查看 RMBV" onclick="goto('f03')"
-         style="left:19.6%;top:32.9%;width:24.9%;height:6.1%"></div>
-    <div class="hs" data-tip="查看 USD III" onclick="goto('f03')"
-         style="left:19.6%;top:39.1%;width:24.9%;height:6.1%"></div>
-    <div class="hs" data-tip="查看 USD II" onclick="goto('f03')"
-         style="left:19.6%;top:45.3%;width:24.9%;height:6.1%"></div>
-    <div class="hs" data-tip="查看 RMBIV" onclick="goto('f03')"
-         style="left:19.6%;top:51.6%;width:24.9%;height:6.1%"></div>
-    <!-- 查看按钮列 x:1212, 每行 y:240/296/352/408/464 -->
-    <div class="hs" data-tip="查看" onclick="goto('f03')"
-         style="left:83.8%;top:26.7%;width:2%;height:6.1%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f03')"
-         style="left:83.8%;top:32.9%;width:2%;height:6.1%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f03')"
-         style="left:83.8%;top:39.1%;width:2%;height:6.1%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f03')"
-         style="left:83.8%;top:45.3%;width:2%;height:6.1%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f03')"
-         style="left:83.8%;top:51.6%;width:2%;height:6.1%"></div>
-    <!-- 侧边栏：基金实体 → F01 (x:0-200, y:159-195) -->
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
-         style="left:0%;top:17.7%;width:13.9%;height:4%"></div>
+    <!-- 侧边栏：基金实体 → F01 (item y:231, row y:222-258 in 900px) -->
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.7%;width:13.1%;height:4.0%"></div>
+    <!-- 基金名称列点击（x:240-640, 56px行高）→ F03 -->
+    <div class="hs" data-tip="查看 RMBIV" onclick="goto('f03')" style="left:16.7%;top:21.8%;width:27.8%;height:6.2%"></div>
+    <div class="hs" data-tip="查看 RMBVI" onclick="goto('f03')" style="left:16.7%;top:28.0%;width:27.8%;height:6.2%"></div>
+    <div class="hs" data-tip="查看 RMBL" onclick="goto('f03')" style="left:16.7%;top:34.2%;width:27.8%;height:6.2%"></div>
+    <div class="hs" data-tip="查看 RMBV" onclick="goto('f03')" style="left:16.7%;top:40.4%;width:27.8%;height:6.2%"></div>
+    <div class="hs" data-tip="查看 RMBVII" onclick="goto('f03')" style="left:16.7%;top:46.7%;width:27.8%;height:6.2%"></div>
   </div>
 
   <!-- ===== F01 基金实体列表页 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f01">
     <img src="frames/F01-fund-entity-list.png?v=2" alt="F01 基金实体列表页">
-
-    <!-- 侧边栏：基金列表 → F00 (y:80~110/900) -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
-
+    <!-- 侧边栏：基金列表 → F00 (item y:165, row y:156-192 / 900) -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"></div>
     <!-- 顶部操作按钮 -->
-    <div class="hs" data-tip="+ 新建实体" onclick="goto('f05')"
-         style="left:81.5%;top:8.2%;width:6.9%;height:3.6%"></div>
-    <div class="hs" data-tip="导入" onclick="goto('f10')"
-         style="left:89.3%;top:8.2%;width:4.2%;height:3.6%"></div>
-
-    <!-- 表格行：查看 / 编辑 / 删除 -->
-    <!-- Row 1 恒星 -->
-    <div class="hs" data-tip="查看 恒星" onclick="goto('f02a')"
-         style="left:15.3%;top:22%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 恒星" onclick="goto('f06')"
-         style="left:93.7%;top:22%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 恒星" onclick="goto('f07')"
-         style="left:96.6%;top:22%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 2 瑞星 -->
-    <div class="hs" data-tip="查看 瑞星" onclick="goto('f02a')"
-         style="left:15.3%;top:26.4%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 瑞星" onclick="goto('f06')"
-         style="left:93.7%;top:26.4%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 瑞星" onclick="goto('f07')"
-         style="left:96.6%;top:26.4%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 3 腾星 -->
-    <div class="hs" data-tip="查看 腾星" onclick="goto('f02a')"
-         style="left:15.3%;top:30.8%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 腾星" onclick="goto('f06')"
-         style="left:93.7%;top:30.8%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 腾星" onclick="goto('f07')"
-         style="left:96.6%;top:30.8%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 4 泽星 -->
-    <div class="hs" data-tip="查看 泽星" onclick="goto('f02a')"
-         style="left:15.3%;top:35.3%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 泽星" onclick="goto('f06')"
-         style="left:93.7%;top:35.3%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 泽星" onclick="goto('f07')"
-         style="left:96.6%;top:35.3%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 5 宁星 -->
-    <div class="hs" data-tip="查看 宁星" onclick="goto('f02a')"
-         style="left:15.3%;top:39.7%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 宁星" onclick="goto('f06')"
-         style="left:93.7%;top:39.7%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 宁星" onclick="goto('f07')"
-         style="left:96.6%;top:39.7%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 6 煜星 -->
-    <div class="hs" data-tip="查看 煜星" onclick="goto('f02a')"
-         style="left:15.3%;top:44.1%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑 煜星" onclick="goto('f06')"
-         style="left:93.7%;top:44.1%;width:2.8%;height:4.4%"></div>
-    <div class="hs" data-tip="删除 煜星" onclick="goto('f07')"
-         style="left:96.6%;top:44.1%;width:2.8%;height:4.4%"></div>
-
-    <!-- Row 7-10 (相同操作，跳转到同一目标帧) -->
-    <div class="hs" data-tip="查看" onclick="goto('f02a')"
-         style="left:15.3%;top:48.6%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f02a')"
-         style="left:15.3%;top:53%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f02a')"
-         style="left:15.3%;top:57.4%;width:76.5%;height:4.4%"></div>
-    <div class="hs" data-tip="查看" onclick="goto('f02a')"
-         style="left:15.3%;top:61.9%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="+ 新建实体" onclick="goto('f05')" style="left:81.5%;top:8.2%;width:6.9%;height:3.6%"></div>
+    <div class="hs" data-tip="导入" onclick="goto('f10')" style="left:89.3%;top:8.2%;width:4.2%;height:3.6%"></div>
+    <!-- 表格行：查看→F02a / 编辑→F06 / 删除→F07 (y:198起，行高40px) -->
+    <div class="hs" data-tip="查看 第1行" onclick="goto('f02a')" style="left:15.6%;top:22.0%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第1行" onclick="goto('f06')" style="left:93.7%;top:22.0%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第1行" onclick="goto('f07')" style="left:96.1%;top:22.0%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第2行" onclick="goto('f02a')" style="left:15.6%;top:26.4%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第2行" onclick="goto('f06')" style="left:93.7%;top:26.4%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第2行" onclick="goto('f07')" style="left:96.1%;top:26.4%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第3行" onclick="goto('f02a')" style="left:15.6%;top:30.9%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第3行" onclick="goto('f06')" style="left:93.7%;top:30.9%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第3行" onclick="goto('f07')" style="left:96.1%;top:30.9%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第4行" onclick="goto('f02a')" style="left:15.6%;top:35.3%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第4行" onclick="goto('f06')" style="left:93.7%;top:35.3%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第4行" onclick="goto('f07')" style="left:96.1%;top:35.3%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第5行" onclick="goto('f02a')" style="left:15.6%;top:39.8%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第5行" onclick="goto('f06')" style="left:93.7%;top:39.8%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第5行" onclick="goto('f07')" style="left:96.1%;top:39.8%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第6行" onclick="goto('f02a')" style="left:15.6%;top:44.2%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第6行" onclick="goto('f06')" style="left:93.7%;top:44.2%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第6行" onclick="goto('f07')" style="left:96.1%;top:44.2%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第7行" onclick="goto('f02a')" style="left:15.6%;top:48.7%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第7行" onclick="goto('f06')" style="left:93.7%;top:48.7%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第7行" onclick="goto('f07')" style="left:96.1%;top:48.7%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第8行" onclick="goto('f02a')" style="left:15.6%;top:53.1%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第8行" onclick="goto('f06')" style="left:93.7%;top:53.1%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第8行" onclick="goto('f07')" style="left:96.1%;top:53.1%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第9行" onclick="goto('f02a')" style="left:15.6%;top:57.6%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第9行" onclick="goto('f06')" style="left:93.7%;top:57.6%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第9行" onclick="goto('f07')" style="left:96.1%;top:57.6%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="查看 第10行" onclick="goto('f02a')" style="left:15.6%;top:62.0%;width:73.8%;height:4.3%"></div>
+    <div class="hs" data-tip="编辑 第10行" onclick="goto('f06')" style="left:93.7%;top:62.0%;width:2.5%;height:4.3%"></div>
+    <div class="hs" data-tip="删除 第10行" onclick="goto('f07')" style="left:96.1%;top:62.0%;width:2.5%;height:4.3%"></div>
   </div>
 
   <!-- ===== F02a 实体详情·基本信息 (1440×960) ===== -->
   <div class="frame-wrap fw-960" id="fw-f02a">
     <img src="frames/F02a-entity-detail-basic.png?v=2" alt="F02a 实体详情基本信息">
-
-    <!-- 侧边栏（F02a 1440×960：y:74~114 基金列表, y:136~176 基金实体 active） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:7.7%;width:13.1%;height:4.2%"></div>
-    <!-- 面包屑：基金实体 → 返回列表 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
-
-    <!-- 编辑按钮 -->
-    <div class="hs" data-tip="编辑" onclick="goto('f06')"
-         style="left:93.8%;top:8.1%;width:4.2%;height:3.3%"></div>
-
-    <!-- Tabs -->
-    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
-         style="left:22.9%;top:13.75%;width:7.6%;height:4.2%"></div>
-    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
-         style="left:30.6%;top:13.75%;width:6.3%;height:4.2%"></div>
-    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
-         style="left:37.5%;top:13.75%;width:6.3%;height:4.2%"></div>
+    <!-- 侧边栏：基金列表→F00 (item y:165, row y:156-192 / 960) -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:16.3%;width:13.1%;height:3.75%"></div>
+    <!-- 面包屑：基金实体 → F01 (x:272 y:17 / 960) -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+    <!-- 编辑实体按钮 (x:1350 y:78 w:60 h:32 / 960) -->
+    <div class="hs" data-tip="编辑" onclick="goto('f06')" style="left:93.8%;top:8.1%;width:4.2%;height:3.3%"></div>
+    <!-- Tabs bar y:132 h:40 / 960 → top:13.8% h:4.2% -->
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')" style="left:22.9%;top:13.8%;width:7.4%;height:4.2%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')" style="left:30.6%;top:13.8%;width:6.9%;height:4.2%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')" style="left:37.5%;top:13.8%;width:6.9%;height:4.2%"></div>
   </div>
 
   <!-- ===== F02b 实体详情·出资人管理 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f02b">
     <img src="frames/F02b-entity-detail-investor.png?v=2" alt="F02b 实体详情出资人管理">
-
-    <!-- 侧边栏（F02b 1440×900） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
-    <!-- 面包屑 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
-
-    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
-    <div class="hs" data-tip="编辑" onclick="goto('f06')"
-         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
-
-    <!-- Tabs -->
-    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
-         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
-    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
-         style="left:30.6%;top:16.9%;width:6.3%;height:4.4%"></div>
-    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
-         style="left:37.5%;top:16.9%;width:6.3%;height:4.4%"></div>
-
-    <!-- + 新增出资人 -->
-    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')"
-         style="left:86.4%;top:23.6%;width:6.9%;height:3.6%"></div>
-    <!-- 出资人列表"编辑"按钮 → F09（x:1316~1366, 行高40px）-->
-    <div class="hs" data-tip="编辑出资人 1" onclick="goto('f09')"
-         style="left:91.4%;top:33.3%;width:3.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑出资人 2" onclick="goto('f09')"
-         style="left:91.4%;top:37.8%;width:3.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑出资人 3" onclick="goto('f09')"
-         style="left:91.4%;top:42.2%;width:3.5%;height:4.4%"></div>
-    <div class="hs" data-tip="编辑出资人 4" onclick="goto('f09')"
-         style="left:91.4%;top:46.7%;width:3.5%;height:4.4%"></div>
+    <!-- 侧边栏：基金列表→F00 -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"></div>
+    <!-- 面包屑：基金实体→F01 (x:272 y:17) -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:18.9%;top:1.9%;width:3.3%;height:1.7%"></div>
+    <!-- 编辑实体按钮 (x:1350 y:78) -->
+    <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
+    <!-- Tabs bar y:128 h:40 → top:14.2% h:4.4%；x:230/330/440/540 -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')" style="left:16.0%;top:14.2%;width:6.9%;height:4.4%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')" style="left:30.6%;top:14.2%;width:6.9%;height:4.4%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')" style="left:37.5%;top:14.2%;width:6.9%;height:4.4%"></div>
+    <!-- + 新增出资人 (x:1244 y:189 w:100 h:32) -->
+    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')" style="left:86.4%;top:21.0%;width:6.9%;height:3.6%"></div>
+    <!-- 出资人列表"编辑"→F09 (x:1316~1366，行高40px) -->
+    <div class="hs" data-tip="编辑出资人 1" onclick="goto('f09')" style="left:91.4%;top:30.8%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 2" onclick="goto('f09')" style="left:91.4%;top:35.2%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 3" onclick="goto('f09')" style="left:91.4%;top:39.7%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑出资人 4" onclick="goto('f09')" style="left:91.4%;top:44.1%;width:2.8%;height:4.4%"></div>
   </div>
 
   <!-- ===== F02c 实体详情·投资项目 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f02c">
     <img src="frames/F02c-entity-detail-projects.png?v=2" alt="F02c 实体详情投资项目">
-
-    <!-- 侧边栏（F02b 1440×900） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
-    <!-- 面包屑 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
-
-    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
-    <div class="hs" data-tip="编辑" onclick="goto('f06')"
-         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
-
-    <!-- Tabs -->
-    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
-         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
-    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
-         style="left:22.9%;top:16.9%;width:7.6%;height:4.4%"></div>
-    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
-         style="left:37.5%;top:16.9%;width:6.3%;height:4.4%"></div>
+    <!-- 侧边栏：基金列表→F00 (item y:170, row y:161-197) -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.9%;width:13.1%;height:4.0%"></div>
+    <!-- 面包屑：基金实体→F01 (x:285 y:16) -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:19.8%;top:1.8%;width:3.6%;height:1.8%"></div>
+    <!-- 编辑实体按钮 (x:1340 y:65 w:70 h:32) -->
+    <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:93.1%;top:7.2%;width:4.9%;height:3.6%"></div>
+    <!-- Tabs: 基本信息x:220 出资人管理x:304 投资项目x:401(active) 修改记录x:485 -->
+    <!-- tab bar 估算 top:12.8% h:4.4% -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')" style="left:15.3%;top:12.8%;width:5.8%;height:4.4%"></div>
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')" style="left:21.1%;top:12.8%;width:6.7%;height:4.4%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')" style="left:33.7%;top:12.8%;width:5.4%;height:4.4%"></div>
   </div>
 
   <!-- ===== F02d 实体详情·修改记录 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f02d">
     <img src="frames/F02d-entity-detail-history.png?v=2" alt="F02d 实体详情修改记录">
-
-    <!-- 侧边栏（F02b 1440×900） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:8.2%;width:13.1%;height:4.4%"></div>
-    <!-- 面包屑 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
-
-    <!-- 实体编辑按钮（右上角，编辑基金实体信息）-->
-    <div class="hs" data-tip="编辑" onclick="goto('f06')"
-         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
-
-    <!-- Tabs -->
-    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
-         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
-    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
-         style="left:22.9%;top:16.9%;width:7.6%;height:4.4%"></div>
-    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
-         style="left:30.6%;top:16.9%;width:6.3%;height:4.4%"></div>
+    <!-- 侧边栏：基金列表→F00 (item y:165) -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"></div>
+    <!-- 面包屑（整行）→ F01 (x:216 y:20 w:218 h:16) -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:15.0%;top:2.2%;width:15.1%;height:1.8%"></div>
+    <!-- 编辑实体按钮 (x:1320 y:12 w:80 h:32) -->
+    <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:91.7%;top:1.3%;width:5.6%;height:3.6%"></div>
+    <!-- Tabs btn y:134 h:36 → top:14.9% h:4.0%；x:224/292/368/435(active) -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')" style="left:15.6%;top:14.9%;width:4.7%;height:4.0%"></div>
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')" style="left:20.3%;top:14.9%;width:5.3%;height:4.0%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')" style="left:25.6%;top:14.9%;width:3.3%;height:4.0%"></div>
   </div>
 
   <!-- ===== F03 虚拟基金详情+Drawer (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f03">
     <img src="frames/F03-virtual-fund-detail-drawer.png?v=2" alt="F03 虚拟基金详情">
-
-    <!-- 侧边栏（F03 1440×900，200px宽，基金列表 active） -->
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
-         style="left:0%;top:17.7%;width:13.9%;height:4%"></div>
-    <!-- 面包屑：返回虚拟基金列表 -->
-    <div class="hs" data-tip="返回 虚拟基金列表" onclick="goto('f00')"
-         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
-    <!-- 右上角"查看"按钮 → F02a（Drawer 内，x:1346, y:11, w:60, h:28） -->
-    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')"
-         style="left:93.5%;top:1.2%;width:4.2%;height:3.1%"></div>
-
-    <!-- + 关联基金 按钮 -->
-    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')"
-         style="left:15.1%;top:7%;width:5.6%;height:3.6%"></div>
-
-    <!-- 解除关联：Drawer 内列表操作 -->
-    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
-         style="left:86%;top:62%;width:5%;height:3.3%"></div>
-    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
-         style="left:86%;top:67%;width:5%;height:3.3%"></div>
-    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
-         style="left:86%;top:72%;width:5%;height:3.3%"></div>
+    <!-- 侧边栏：基金实体→F01 (item y:234, row y:225-261) -->
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:25.0%;width:13.1%;height:4.0%"></div>
+    <!-- 面包屑：基金列表→F00 (x:285 y:16) -->
+    <div class="hs" data-tip="返回 基金列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.6%;height:1.8%"></div>
+    <!-- Drawer 右上角"查看"按钮→F02a (x:1344 y:11 w:60 h:28) -->
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')" style="left:93.3%;top:1.2%;width:4.2%;height:3.1%"></div>
+    <!-- + 关联基金 (x:208 y:65 w:80 h:32) -->
+    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:14.4%;top:7.2%;width:5.6%;height:3.6%"></div>
+    <!-- 左侧列表行 ⊘ x:854 (59.3%)，行高34px；y:146/180/214/248/282 -->
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:59.3%;top:16.2%;width:2.5%;height:3.8%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:59.3%;top:20.0%;width:2.5%;height:3.8%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:59.3%;top:23.8%;width:2.5%;height:3.8%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:59.3%;top:27.6%;width:2.5%;height:3.8%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:59.3%;top:31.3%;width:2.5%;height:3.8%"></div>
   </div>
 
   <!-- ===== F04 关联基金弹窗 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f04">
     <img src="frames/F04-associate-fund-modal.png?v=2" alt="F04 关联基金弹窗">
-
-    <!-- 确认/取消 -->
-    <div class="hs" data-tip="确认关联" onclick="goto('f03')"
-         style="left:58%;top:78%;width:6%;height:4%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f03')"
-         style="left:51%;top:78%;width:5%;height:4%"></div>
-
-    <!-- 关闭 ✕ -->
-    <div class="hs" data-tip="关闭" onclick="goto('f03')"
-         style="left:86%;top:20%;width:2%;height:2.5%"></div>
+    <div class="hs" data-tip="确认关联" onclick="goto('f03')" style="left:58.0%;top:78.0%;width:6.0%;height:4.0%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:51.0%;top:78.0%;width:5.0%;height:4.0%"></div>
+    <div class="hs" data-tip="关闭 ✕" onclick="goto('f03')" style="left:86.0%;top:20.0%;width:2.0%;height:2.5%"></div>
   </div>
 
   <!-- ===== F05 新建实体表单页 (1440×1100) ===== -->
   <div class="frame-wrap fw-1100" id="fw-f05">
     <img src="frames/F05-new-entity-form.png?v=2" alt="F05 新建实体表单">
-
-    <!-- 侧边栏（F05 1440×1100） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:6%;width:13.1%;height:3%"></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
-         style="left:0%;top:14%;width:13.1%;height:3%"></div>
-    <!-- 面包屑：返回列表 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
-
-    <!-- 保存 / 取消 按钮 (y:1041 in 1100px = 94.6%) -->
-    <div class="hs" data-tip="保存" onclick="goto('f01')"
-         style="left:87%;top:94%;width:4.2%;height:2.9%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f01')"
-         style="left:82.6%;top:94%;width:3.3%;height:2.9%"></div>
+    <!-- 侧边栏 (1100px frame): 基金列表 item y:170, 基金实体 item y:234 -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:14.8%;width:13.1%;height:3.3%"></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:20.5%;width:13.1%;height:3.3%"></div>
+    <!-- 面包屑 (x:360 y:16) -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
+    <!-- 保存 / 取消 (y:1041 in 1100) -->
+    <div class="hs" data-tip="保存" onclick="goto('f01')" style="left:87.0%;top:94.6%;width:4.2%;height:2.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:82.6%;top:94.6%;width:3.3%;height:2.9%"></div>
   </div>
 
   <!-- ===== F06 编辑实体页面 (1440×1100) ===== -->
   <div class="frame-wrap fw-1100" id="fw-f06">
     <img src="frames/F06-edit-entity-form.png?v=2" alt="F06 编辑实体页面">
-
-    <!-- 侧边栏（F06 1440×1100） -->
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')"
-         style="left:0%;top:6%;width:13.1%;height:3%"></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')"
-         style="left:0%;top:14%;width:13.1%;height:3%"></div>
-    <!-- 面包屑 -->
-    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
-         style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
-
-    <!-- 保存 / 取消 -->
-    <div class="hs" data-tip="保存" onclick="goto('f02a')"
-         style="left:87%;top:94%;width:4.2%;height:2.9%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f02a')"
-         style="left:82.6%;top:94%;width:3.3%;height:2.9%"></div>
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:14.8%;width:13.1%;height:3.3%"></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:20.5%;width:13.1%;height:3.3%"></div>
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
+    <div class="hs" data-tip="保存" onclick="goto('f02a')" style="left:87.0%;top:94.6%;width:4.2%;height:2.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f02a')" style="left:82.6%;top:94.6%;width:3.3%;height:2.9%"></div>
   </div>
 
   <!-- ===== F07 删除确认弹窗 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f07">
     <img src="frames/F07-delete-confirm-modal.png?v=2" alt="F07 删除确认弹窗">
-
-    <!-- 确定 / 取消 -->
-    <div class="hs" data-tip="确定删除" onclick="goto('f01')"
-         style="left:63.8%;top:60%;width:4.5%;height:3.6%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f01')"
-         style="left:58.8%;top:60%;width:4%;height:3.6%"></div>
-
-    <!-- 关闭 -->
-    <div class="hs" data-tip="关闭" onclick="goto('f01')"
-         style="left:63%;top:35%;width:2%;height:2.5%"></div>
+    <div class="hs" data-tip="确定删除" onclick="goto('f01')" style="left:63.8%;top:60.0%;width:4.5%;height:3.6%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:58.8%;top:60.0%;width:4.0%;height:3.6%"></div>
+    <div class="hs" data-tip="关闭" onclick="goto('f01')" style="left:63.0%;top:35.0%;width:2.0%;height:2.5%"></div>
   </div>
 
   <!-- ===== F08 解除关联确认弹窗 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f08">
     <img src="frames/F08-unlink-confirm-modal.png?v=2" alt="F08 解除关联确认弹窗">
-
-    <!-- 确认解除 / 取消 -->
-    <div class="hs" data-tip="确认解除" onclick="goto('f03')"
-         style="left:57.8%;top:57.6%;width:4.2%;height:3.6%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f03')"
-         style="left:52.2%;top:57.6%;width:3.3%;height:3.6%"></div>
+    <div class="hs" data-tip="确认解除" onclick="goto('f03')" style="left:57.8%;top:57.6%;width:4.2%;height:3.6%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:52.2%;top:57.6%;width:3.3%;height:3.6%"></div>
   </div>
 
   <!-- ===== F09 出资人新增弹窗 (1440×878) ===== -->
   <div class="frame-wrap fw-878" id="fw-f09">
     <img src="frames/F09-add-investor-modal.png?v=2" alt="F09 出资人新增弹窗">
-
-    <!-- 保存 / 取消 (y:826 in 878px = 94%) -->
-    <div class="hs" data-tip="保存" onclick="goto('f02b')"
-         style="left:78.3%;top:93.5%;width:3.3%;height:3.9%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f02b')"
-         style="left:73.4%;top:93.5%;width:3.3%;height:3.9%"></div>
-
-    <!-- 关闭 ✕ -->
-    <div class="hs" data-tip="关闭" onclick="goto('f02b')"
-         style="left:80.8%;top:4%;width:2%;height:3%"></div>
+    <div class="hs" data-tip="保存" onclick="goto('f02b')" style="left:78.3%;top:93.5%;width:3.3%;height:3.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f02b')" style="left:73.4%;top:93.5%;width:3.3%;height:3.9%"></div>
+    <div class="hs" data-tip="关闭 ✕" onclick="goto('f02b')" style="left:80.8%;top:4.0%;width:2.0%;height:3.0%"></div>
   </div>
 
   <!-- ===== F10 导入弹窗 (1440×900) ===== -->
   <div class="frame-wrap fw-900" id="fw-f10">
     <img src="frames/F10-import-modal.png?v=2" alt="F10 导入弹窗">
-
-    <!-- 确认导入 / 取消 -->
-    <div class="hs" data-tip="确认导入" onclick="goto('f01')"
-         style="left:60.4%;top:60.6%;width:5.6%;height:4%"></div>
-    <div class="hs" data-tip="取消" onclick="goto('f01')"
-         style="left:54.2%;top:60.6%;width:4.2%;height:4%"></div>
+    <div class="hs" data-tip="确认导入" onclick="goto('f01')" style="left:60.4%;top:60.6%;width:5.6%;height:4.0%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:54.2%;top:60.6%;width:4.2%;height:4.0%"></div>
   </div>
 
 </div><!-- /stage -->
