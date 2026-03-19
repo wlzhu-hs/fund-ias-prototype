@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fund IAS · 实体基金 · 交互稿</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a1a; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; }
+
+    /* ---- 顶部工具栏 ---- */
+    #toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 40px; background: #2d2d2d; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px; border-bottom: 1px solid #444;
+    }
+    #toolbar .logo { color: #f0f0f0; font-weight: 600; font-size: 13px; letter-spacing: .3px; }
+    #toolbar .sep { width: 1px; height: 20px; background: #555; }
+    #toolbar .frame-name { color: #aaa; font-size: 12px; transition: color .2s; }
+    #toolbar .frame-name span { color: #6fb3ff; }
+    #toolbar .spacer { flex: 1; }
+    #toolbar .btn-group { display: flex; gap: 6px; }
+    .tb-btn {
+      background: #444; color: #ccc; border: none; padding: 4px 10px;
+      border-radius: 4px; font-size: 11px; cursor: pointer; transition: background .15s;
+    }
+    .tb-btn:hover { background: #555; color: #fff; }
+    .tb-btn.active { background: #6fb3ff; color: #fff; }
+
+    /* ---- 主容器 ---- */
+    #stage {
+      position: fixed; top: 40px; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: auto;
+    }
+
+    /* ---- Frame容器 ---- */
+    .frame-wrap {
+      position: relative; display: none;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7);
+      width: 1440px; flex-shrink: 0;
+    }
+    .frame-wrap.active { display: inline-block; }
+    .frame-wrap img { display: block; width: 100%; height: auto; }
+
+    /* Aspect-ratio helpers for correct hotspot % positioning */
+    .fw-900  { aspect-ratio: 1440/900; }
+    .fw-960  { aspect-ratio: 1440/960; }
+    .fw-1100 { aspect-ratio: 1440/1100; }
+    .fw-878  { aspect-ratio: 1440/878; }
+
+    /* ---- 热区 ---- */
+    .hs {
+      position: absolute; cursor: pointer;
+      background: transparent;
+      border-radius: 4px;
+      transition: background .12s;
+    }
+    .hs:hover { background: rgba(111, 179, 255, 0.18); }
+
+    /* ---- 热区 tooltip ---- */
+    .hs[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+      background: #222; color: #eee; font-size: 11px; white-space: nowrap;
+      padding: 3px 8px; border-radius: 4px; pointer-events: none; z-index: 99;
+    }
+
+    /* ---- 过渡动画 ---- */
+    .frame-enter { animation: fadeIn .22s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* ---- 导航面板 ---- */
+    #nav-panel {
+      position: fixed; top: 40px; left: 0; bottom: 0; width: 200px;
+      background: #252525; border-right: 1px solid #3a3a3a;
+      padding: 12px 0; overflow-y: auto; z-index: 900;
+      transform: translateX(-100%); transition: transform .25s ease;
+    }
+    #nav-panel.open { transform: translateX(0); }
+    #nav-panel h3 { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; padding: 0 12px 8px; }
+    .nav-item {
+      padding: 7px 12px; color: #bbb; font-size: 12px; cursor: pointer;
+      border-left: 2px solid transparent; transition: all .12s; line-height: 1.3;
+    }
+    .nav-item:hover { background: #333; color: #fff; }
+    .nav-item.active { background: #2a3a50; color: #6fb3ff; border-left-color: #6fb3ff; }
+    .nav-sep { height: 1px; background: #3a3a3a; margin: 8px 0; }
+
+    /* ---- 缩放控制 ---- */
+    #zoom-ctrl {
+      position: fixed; bottom: 16px; right: 16px; z-index: 1000;
+      background: #2d2d2d; border: 1px solid #444; border-radius: 6px;
+      display: flex; align-items: center; gap: 0; overflow: hidden;
+    }
+    .z-btn {
+      background: none; border: none; color: #ccc; width: 32px; height: 32px;
+      font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .12s;
+    }
+    .z-btn:hover { background: #444; color: #fff; }
+    #zoom-label { color: #aaa; font-size: 11px; padding: 0 8px; min-width: 44px; text-align: center; }
+
+    /* ---- 当前stage下的调整 ---- */
+    #stage.nav-open { left: 200px; }
+  </style>
+</head>
+<body>
+
+<!-- 顶部工具栏 -->
+<div id="toolbar">
+  <button class="tb-btn" id="nav-toggle" onclick="toggleNav()">☰ 页面</button>
+  <div class="sep"></div>
+  <div class="logo">Fund IAS · 实体基金</div>
+  <div class="sep"></div>
+  <div class="frame-name" id="frame-label">当前页面：<span id="frame-title">F01 基金实体列表页</span></div>
+  <div class="spacer"></div>
+  <div class="btn-group">
+    <button class="tb-btn" onclick="goBack()" title="返回上一步">← 返回</button>
+    <button class="tb-btn" onclick="resetZoom()">适应窗口</button>
+  </div>
+</div>
+
+<!-- 左侧导航面板 -->
+<div id="nav-panel">
+  <h3>框架列表</h3>
+  <div class="nav-item active" onclick="goto('f01')" data-frame="f01">F01 基金实体列表页</div>
+  <div class="nav-item" onclick="goto('f00')" data-frame="f00">F00 虚拟基金列表</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item" onclick="goto('f02a')" data-frame="f02a">F02a 实体详情·基本信息</div>
+  <div class="nav-item" onclick="goto('f02b')" data-frame="f02b">F02b 实体详情·出资人管理</div>
+  <div class="nav-item" onclick="goto('f02c')" data-frame="f02c">F02c 实体详情·投资项目</div>
+  <div class="nav-item" onclick="goto('f02d')" data-frame="f02d">F02d 实体详情·修改记录</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item" onclick="goto('f03')" data-frame="f03">F03 虚拟基金详情+Drawer</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item" onclick="goto('f05')" data-frame="f05">F05 新建实体表单</div>
+  <div class="nav-item" onclick="goto('f06')" data-frame="f06">F06 编辑实体页面</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item" onclick="goto('f04')" data-frame="f04">F04 关联基金弹窗</div>
+  <div class="nav-item" onclick="goto('f07')" data-frame="f07">F07 删除确认弹窗</div>
+  <div class="nav-item" onclick="goto('f08')" data-frame="f08">F08 解除关联确认弹窗</div>
+  <div class="nav-item" onclick="goto('f09')" data-frame="f09">F09 出资人新增弹窗</div>
+  <div class="nav-item" onclick="goto('f10')" data-frame="f10">F10 导入弹窗</div>
+</div>
+
+<!-- 舞台 -->
+<div id="stage">
+
+  <!-- ===== F00 虚拟基金列表 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f00">
+    <img src="frames/F00-virtual-fund-list.png" alt="F00 虚拟基金列表">
+    <!-- 点击行查看虚拟基金详情 -->
+    <div class="hs" data-tip="查看 RMBVI 详情" onclick="goto('f03')"
+         style="left:15.3%;top:22%;width:77.8%;height:4.4%"></div>
+    <div class="hs" data-tip="查看 USDVI 详情" onclick="goto('f03')"
+         style="left:15.3%;top:27%;width:77.8%;height:4.4%"></div>
+    <!-- 左侧菜单：基金实体 -->
+    <div class="hs" data-tip="进入 基金实体 列表" onclick="goto('f01')"
+         style="left:2.5%;top:17.3%;width:13%;height:4%"></div>
+  </div>
+
+  <!-- ===== F01 基金实体列表页 (1440×900) ===== -->
+  <div class="frame-wrap fw-900 active" id="fw-f01">
+    <img src="frames/F01-fund-entity-list.png" alt="F01 基金实体列表页">
+
+    <!-- 左侧菜单导航 -->
+    <div class="hs" data-tip="基金列表" onclick="goto('f01')"
+         style="left:2.5%;top:10.3%;width:13%;height:1.8%"></div>
+    <div class="hs" data-tip="虚拟基金列表" onclick="goto('f00')"
+         style="left:2.5%;top:17.3%;width:13%;height:4%"></div>
+
+    <!-- 顶部操作按钮 -->
+    <div class="hs" data-tip="+ 新建实体" onclick="goto('f05')"
+         style="left:81.5%;top:8.2%;width:6.9%;height:3.6%"></div>
+    <div class="hs" data-tip="导入" onclick="goto('f10')"
+         style="left:89.3%;top:8.2%;width:4.2%;height:3.6%"></div>
+
+    <!-- 表格行：查看 / 编辑 / 删除 -->
+    <!-- Row 1 恒星 -->
+    <div class="hs" data-tip="查看 恒星" onclick="goto('f02a')"
+         style="left:15.3%;top:22%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 恒星" onclick="goto('f06')"
+         style="left:93.7%;top:22%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 恒星" onclick="goto('f07')"
+         style="left:96.6%;top:22%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 2 瑞星 -->
+    <div class="hs" data-tip="查看 瑞星" onclick="goto('f02a')"
+         style="left:15.3%;top:26.4%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 瑞星" onclick="goto('f06')"
+         style="left:93.7%;top:26.4%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 瑞星" onclick="goto('f07')"
+         style="left:96.6%;top:26.4%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 3 腾星 -->
+    <div class="hs" data-tip="查看 腾星" onclick="goto('f02a')"
+         style="left:15.3%;top:30.8%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 腾星" onclick="goto('f06')"
+         style="left:93.7%;top:30.8%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 腾星" onclick="goto('f07')"
+         style="left:96.6%;top:30.8%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 4 泽星 -->
+    <div class="hs" data-tip="查看 泽星" onclick="goto('f02a')"
+         style="left:15.3%;top:35.3%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 泽星" onclick="goto('f06')"
+         style="left:93.7%;top:35.3%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 泽星" onclick="goto('f07')"
+         style="left:96.6%;top:35.3%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 5 宁星 -->
+    <div class="hs" data-tip="查看 宁星" onclick="goto('f02a')"
+         style="left:15.3%;top:39.7%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 宁星" onclick="goto('f06')"
+         style="left:93.7%;top:39.7%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 宁星" onclick="goto('f07')"
+         style="left:96.6%;top:39.7%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 6 煜星 -->
+    <div class="hs" data-tip="查看 煜星" onclick="goto('f02a')"
+         style="left:15.3%;top:44.1%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="编辑 煜星" onclick="goto('f06')"
+         style="left:93.7%;top:44.1%;width:2.8%;height:4.4%"></div>
+    <div class="hs" data-tip="删除 煜星" onclick="goto('f07')"
+         style="left:96.6%;top:44.1%;width:2.8%;height:4.4%"></div>
+
+    <!-- Row 7-10 (相同操作，跳转到同一目标帧) -->
+    <div class="hs" data-tip="查看" onclick="goto('f02a')"
+         style="left:15.3%;top:48.6%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f02a')"
+         style="left:15.3%;top:53%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f02a')"
+         style="left:15.3%;top:57.4%;width:76.5%;height:4.4%"></div>
+    <div class="hs" data-tip="查看" onclick="goto('f02a')"
+         style="left:15.3%;top:61.9%;width:76.5%;height:4.4%"></div>
+  </div>
+
+  <!-- ===== F02a 实体详情·基本信息 (1440×960) ===== -->
+  <div class="frame-wrap fw-960" id="fw-f02a">
+    <img src="frames/F02a-entity-detail-basic.png" alt="F02a 实体详情基本信息">
+
+    <!-- 面包屑：基金实体 → 返回列表 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+
+    <!-- 编辑按钮 -->
+    <div class="hs" data-tip="编辑" onclick="goto('f06')"
+         style="left:93.8%;top:8.1%;width:4.2%;height:3.3%"></div>
+
+    <!-- Tabs -->
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
+         style="left:22.9%;top:13.75%;width:7.6%;height:4.2%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
+         style="left:30.6%;top:13.75%;width:6.3%;height:4.2%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
+         style="left:37.5%;top:13.75%;width:6.3%;height:4.2%"></div>
+  </div>
+
+  <!-- ===== F02b 实体详情·出资人管理 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f02b">
+    <img src="frames/F02b-entity-detail-investor.png" alt="F02b 实体详情出资人管理">
+
+    <!-- 面包屑 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+
+    <!-- 编辑按钮 -->
+    <div class="hs" data-tip="编辑" onclick="goto('f06')"
+         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
+
+    <!-- Tabs -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
+         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
+         style="left:30.6%;top:16.9%;width:6.3%;height:4.4%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
+         style="left:37.5%;top:16.9%;width:6.3%;height:4.4%"></div>
+
+    <!-- + 新增出资人 -->
+    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')"
+         style="left:86.4%;top:23.6%;width:6.9%;height:3.6%"></div>
+  </div>
+
+  <!-- ===== F02c 实体详情·投资项目 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f02c">
+    <img src="frames/F02c-entity-detail-projects.png" alt="F02c 实体详情投资项目">
+
+    <!-- 面包屑 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+
+    <!-- 编辑按钮 -->
+    <div class="hs" data-tip="编辑" onclick="goto('f06')"
+         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
+
+    <!-- Tabs -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
+         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
+         style="left:22.9%;top:16.9%;width:7.6%;height:4.4%"></div>
+    <div class="hs" data-tip="修改记录" onclick="goto('f02d')"
+         style="left:37.5%;top:16.9%;width:6.3%;height:4.4%"></div>
+  </div>
+
+  <!-- ===== F02d 实体详情·修改记录 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f02d">
+    <img src="frames/F02d-entity-detail-history.png" alt="F02d 实体详情修改记录">
+
+    <!-- 面包屑 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+
+    <!-- 编辑按钮 -->
+    <div class="hs" data-tip="编辑" onclick="goto('f06')"
+         style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"></div>
+
+    <!-- Tabs -->
+    <div class="hs" data-tip="基本信息" onclick="goto('f02a')"
+         style="left:14.2%;top:16.9%;width:7.6%;height:4.4%"></div>
+    <div class="hs" data-tip="出资人管理" onclick="goto('f02b')"
+         style="left:22.9%;top:16.9%;width:7.6%;height:4.4%"></div>
+    <div class="hs" data-tip="投资项目" onclick="goto('f02c')"
+         style="left:30.6%;top:16.9%;width:6.3%;height:4.4%"></div>
+  </div>
+
+  <!-- ===== F03 虚拟基金详情+Drawer (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f03">
+    <img src="frames/F03-virtual-fund-detail-drawer.png" alt="F03 虚拟基金详情">
+
+    <!-- 面包屑：返回虚拟基金列表 -->
+    <div class="hs" data-tip="返回 虚拟基金列表" onclick="goto('f00')"
+         style="left:18.9%;top:1.8%;width:3.3%;height:1.6%"></div>
+
+    <!-- + 关联基金 按钮 -->
+    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')"
+         style="left:15.1%;top:7%;width:5.6%;height:3.6%"></div>
+
+    <!-- 解除关联：Drawer 内列表操作 -->
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
+         style="left:86%;top:62%;width:5%;height:3.3%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
+         style="left:86%;top:67%;width:5%;height:3.3%"></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')"
+         style="left:86%;top:72%;width:5%;height:3.3%"></div>
+  </div>
+
+  <!-- ===== F04 关联基金弹窗 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f04">
+    <img src="frames/F04-associate-fund-modal.png" alt="F04 关联基金弹窗">
+
+    <!-- 确认/取消 -->
+    <div class="hs" data-tip="确认关联" onclick="goto('f03')"
+         style="left:58%;top:78%;width:6%;height:4%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')"
+         style="left:51%;top:78%;width:5%;height:4%"></div>
+
+    <!-- 关闭 ✕ -->
+    <div class="hs" data-tip="关闭" onclick="goto('f03')"
+         style="left:86%;top:20%;width:2%;height:2.5%"></div>
+  </div>
+
+  <!-- ===== F05 新建实体表单页 (1440×1100) ===== -->
+  <div class="frame-wrap fw-1100" id="fw-f05">
+    <img src="frames/F05-new-entity-form.png" alt="F05 新建实体表单">
+
+    <!-- 面包屑：返回列表 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
+
+    <!-- 保存 / 取消 按钮 (y:1041 in 1100px = 94.6%) -->
+    <div class="hs" data-tip="保存" onclick="goto('f01')"
+         style="left:87%;top:94%;width:4.2%;height:2.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')"
+         style="left:82.6%;top:94%;width:3.3%;height:2.9%"></div>
+  </div>
+
+  <!-- ===== F06 编辑实体页面 (1440×1100) ===== -->
+  <div class="frame-wrap fw-1100" id="fw-f06">
+    <img src="frames/F06-edit-entity-form.png" alt="F06 编辑实体页面">
+
+    <!-- 面包屑 -->
+    <div class="hs" data-tip="返回 基金实体列表" onclick="goto('f01')"
+         style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"></div>
+
+    <!-- 保存 / 取消 -->
+    <div class="hs" data-tip="保存" onclick="goto('f02a')"
+         style="left:87%;top:94%;width:4.2%;height:2.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f02a')"
+         style="left:82.6%;top:94%;width:3.3%;height:2.9%"></div>
+  </div>
+
+  <!-- ===== F07 删除确认弹窗 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f07">
+    <img src="frames/F07-delete-confirm-modal.png" alt="F07 删除确认弹窗">
+
+    <!-- 确定 / 取消 -->
+    <div class="hs" data-tip="确定删除" onclick="goto('f01')"
+         style="left:63.8%;top:60%;width:4.5%;height:3.6%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')"
+         style="left:58.8%;top:60%;width:4%;height:3.6%"></div>
+
+    <!-- 关闭 -->
+    <div class="hs" data-tip="关闭" onclick="goto('f01')"
+         style="left:63%;top:35%;width:2%;height:2.5%"></div>
+  </div>
+
+  <!-- ===== F08 解除关联确认弹窗 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f08">
+    <img src="frames/F08-unlink-confirm-modal.png" alt="F08 解除关联确认弹窗">
+
+    <!-- 确认解除 / 取消 -->
+    <div class="hs" data-tip="确认解除" onclick="goto('f03')"
+         style="left:57.8%;top:57.6%;width:4.2%;height:3.6%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')"
+         style="left:52.2%;top:57.6%;width:3.3%;height:3.6%"></div>
+  </div>
+
+  <!-- ===== F09 出资人新增弹窗 (1440×878) ===== -->
+  <div class="frame-wrap fw-878" id="fw-f09">
+    <img src="frames/F09-add-investor-modal.png" alt="F09 出资人新增弹窗">
+
+    <!-- 保存 / 取消 (y:826 in 878px = 94%) -->
+    <div class="hs" data-tip="保存" onclick="goto('f02b')"
+         style="left:78.3%;top:93.5%;width:3.3%;height:3.9%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f02b')"
+         style="left:73.4%;top:93.5%;width:3.3%;height:3.9%"></div>
+
+    <!-- 关闭 ✕ -->
+    <div class="hs" data-tip="关闭" onclick="goto('f02b')"
+         style="left:80.8%;top:4%;width:2%;height:3%"></div>
+  </div>
+
+  <!-- ===== F10 导入弹窗 (1440×900) ===== -->
+  <div class="frame-wrap fw-900" id="fw-f10">
+    <img src="frames/F10-import-modal.png" alt="F10 导入弹窗">
+
+    <!-- 确认导入 / 取消 -->
+    <div class="hs" data-tip="确认导入" onclick="goto('f01')"
+         style="left:60.4%;top:60.6%;width:5.6%;height:4%"></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')"
+         style="left:54.2%;top:60.6%;width:4.2%;height:4%"></div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- 缩放控制 -->
+<div id="zoom-ctrl">
+  <button class="z-btn" onclick="zoom(-0.1)">−</button>
+  <div id="zoom-label">100%</div>
+  <button class="z-btn" onclick="zoom(+0.1)">+</button>
+</div>
+
+<script>
+// ---- 状态 ----
+let currentFrame = 'f01';
+let history = [];
+let navOpen = false;
+let scale = 1;
+
+const frames = {
+  f00:  { id:'f00',  title:'F00 · 虚拟基金列表' },
+  f01:  { id:'f01',  title:'F01 · 基金实体列表页' },
+  f02a: { id:'f02a', title:'F02a · 实体详情 · 基本信息' },
+  f02b: { id:'f02b', title:'F02b · 实体详情 · 出资人管理' },
+  f02c: { id:'f02c', title:'F02c · 实体详情 · 投资项目' },
+  f02d: { id:'f02d', title:'F02d · 实体详情 · 修改记录' },
+  f03:  { id:'f03',  title:'F03 · 虚拟基金详情 + Drawer' },
+  f04:  { id:'f04',  title:'F04 · 关联基金弹窗' },
+  f05:  { id:'f05',  title:'F05 · 新建实体表单' },
+  f06:  { id:'f06',  title:'F06 · 编辑实体页面' },
+  f07:  { id:'f07',  title:'F07 · 删除确认弹窗' },
+  f08:  { id:'f08',  title:'F08 · 解除关联确认弹窗' },
+  f09:  { id:'f09',  title:'F09 · 出资人新增弹窗' },
+  f10:  { id:'f10',  title:'F10 · 导入弹窗' },
+};
+
+function goto(frameId) {
+  if (!frames[frameId]) return;
+  if (frameId === currentFrame) return;
+  history.push(currentFrame);
+
+  // 隐藏当前
+  document.getElementById('fw-' + currentFrame).classList.remove('active');
+
+  // 显示目标
+  const next = document.getElementById('fw-' + frameId);
+  next.classList.add('active', 'frame-enter');
+  setTimeout(() => next.classList.remove('frame-enter'), 300);
+
+  currentFrame = frameId;
+  document.getElementById('frame-title').textContent = frames[frameId].title;
+
+  // 更新左侧导航高亮
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.frame === frameId);
+  });
+}
+
+function goBack() {
+  if (history.length === 0) return;
+  const prev = history.pop();
+  document.getElementById('fw-' + currentFrame).classList.remove('active');
+  const el = document.getElementById('fw-' + prev);
+  el.classList.add('active', 'frame-enter');
+  setTimeout(() => el.classList.remove('frame-enter'), 300);
+  currentFrame = prev;
+  document.getElementById('frame-title').textContent = frames[prev].title;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.frame === prev);
+  });
+}
+
+function toggleNav() {
+  navOpen = !navOpen;
+  document.getElementById('nav-panel').classList.toggle('open', navOpen);
+  document.getElementById('stage').classList.toggle('nav-open', navOpen);
+  document.getElementById('nav-toggle').classList.toggle('active', navOpen);
+}
+
+// ---- 缩放 ----
+// frame height map (original px)
+const frameHeights = { fw900:900, fw960:960, fw1100:1100, fw878:878 };
+
+function getActiveFrameH() {
+  const fw = document.querySelector('.frame-wrap.active');
+  if (!fw) return 900;
+  const m = fw.className.match(/fw-(\d+)/);
+  return m ? parseInt(m[1]) : 900;
+}
+
+function zoom(delta) {
+  scale = Math.max(0.25, Math.min(2, Math.round((scale + delta) * 10) / 10));
+  applyZoom();
+}
+
+function resetZoom() {
+  const stage = document.getElementById('stage');
+  const stageW = stage.clientWidth - 48;
+  const stageH = stage.clientHeight - 48;
+  const fh = getActiveFrameH();
+  const s = Math.min(stageW / 1440, stageH / fh);
+  scale = Math.min(s, 1);
+  applyZoom();
+}
+
+function applyZoom() {
+  const w = Math.round(1440 * scale);
+  document.querySelectorAll('.frame-wrap').forEach(fw => {
+    fw.style.width = w + 'px';
+  });
+  document.getElementById('zoom-label').textContent = Math.round(scale * 100) + '%';
+}
+
+// 键盘快捷键
+document.addEventListener('keydown', e => {
+  if (e.key === 'Backspace' || e.key === 'ArrowLeft') goBack();
+  if (e.key === '=' || e.key === '+') zoom(+0.1);
+  if (e.key === '-') zoom(-0.1);
+  if (e.key === '0') resetZoom();
+  if (e.key === 'm' || e.key === 'M') toggleNav();
+});
+
+// 初始化：适应窗口
+window.addEventListener('load', () => {
+  setTimeout(resetZoom, 100);
+});
+window.addEventListener('resize', resetZoom);
+</script>
+</body>
+</html>
