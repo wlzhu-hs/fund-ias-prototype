@@ -120,6 +120,89 @@
     }
     .z-btn:hover { background:#444; color:#fff; }
     #zoom-label { color:#aaa; font-size:11px; padding:0 8px; min-width:44px; text-align:center; }
+
+    /* ── Figma 评论模式 ── */
+    body.comment-mode .frame-wrap.active { cursor: crosshair !important; }
+    body.comment-mode .hs { pointer-events: none !important; }
+    body.comment-mode .dot { display: none !important; }
+    .tb-btn.comment-active { background: #FF6B2B !important; color: #fff !important; }
+
+    /* Token 设置对话框 */
+    #token-dialog {
+      position:fixed; inset:0; z-index:3000;
+      background:rgba(0,0,0,.75);
+      display:none; align-items:center; justify-content:center;
+    }
+    #token-dialog.show { display:flex; }
+    .td-box {
+      background:#2d2d2d; border-radius:10px; padding:28px 24px; width:420px;
+      border:1px solid #555; box-shadow:0 16px 48px rgba(0,0,0,.6);
+    }
+    .td-box h2 { color:#fff; font-size:14px; margin-bottom:10px; }
+    .td-box p  { color:#aaa; font-size:12px; margin-bottom:16px; line-height:1.7; }
+    .td-box a  { color:#6fb3ff; text-decoration:none; }
+    .td-label  { color:#888; font-size:11px; margin-bottom:4px; }
+    .td-input  {
+      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
+      padding:8px 12px; border-radius:5px; font-size:12px; margin-bottom:14px;
+      font-family:monospace; box-sizing:border-box;
+    }
+    .td-input:focus { outline:none; border-color:#6fb3ff; }
+    .td-btns { display:flex; gap:8px; justify-content:flex-end; }
+    .td-btn-cancel { background:#444; color:#ccc; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-size:12px; }
+    .td-btn-save   { background:#6fb3ff; color:#fff; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:500; }
+    .td-btn-save:hover { background:#5aa3f0; }
+
+    /* 评论输入弹窗 */
+    #comment-popup {
+      position:fixed; z-index:2000;
+      background:#2d2d2d; border:1px solid #555; border-radius:8px;
+      padding:12px; width:280px;
+      display:none; box-shadow:0 8px 28px rgba(0,0,0,.6);
+    }
+    #comment-popup.show { display:block; }
+    #comment-popup .cp-frame-hint {
+      color:#888; font-size:10px; margin-bottom:8px;
+      padding-bottom:6px; border-bottom:1px solid #3a3a3a;
+    }
+    #comment-popup .cp-frame-hint span { color:#FF6B2B; }
+    #comment-text {
+      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
+      padding:8px; border-radius:4px; font-size:12px; resize:none;
+      height:70px; font-family:-apple-system,sans-serif; margin-bottom:8px;
+      box-sizing:border-box;
+    }
+    #comment-text:focus { outline:none; border-color:#FF6B2B; }
+    #comment-popup .cp-btns { display:flex; gap:6px; justify-content:flex-end; align-items:center; }
+    #comment-popup .cp-shortcut { color:#666; font-size:10px; flex:1; }
+    .cp-btn-cancel { background:#444; color:#ccc; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; }
+    .cp-btn-submit { background:#FF6B2B; color:#fff; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:500; }
+    .cp-btn-submit:disabled { opacity:.45; cursor:not-allowed; }
+
+    /* 本地 Pin 标记 */
+    .c-pin {
+      position:absolute; z-index:15; pointer-events:none;
+      width:20px; height:20px; border-radius:50% 50% 50% 0;
+      background:#FF5722; transform:rotate(-45deg);
+      box-shadow:0 2px 6px rgba(0,0,0,.5);
+    }
+    .c-pin::after {
+      content:attr(data-n);
+      position:absolute; inset:0; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      transform:rotate(45deg);
+      color:#fff; font-size:9px; font-weight:700;
+    }
+
+    /* Toast 提示 */
+    #comment-toast {
+      position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
+      background:#1e1e1e; color:#eee; padding:8px 18px; border-radius:20px;
+      font-size:12px; z-index:4000; border:1px solid #444;
+      opacity:0; transition:opacity .25s; pointer-events:none;
+      white-space:nowrap;
+    }
+    #comment-toast.show { opacity:1; }
   </style>
 </head>
 <body>
@@ -135,8 +218,39 @@
     <button class="tb-btn" onclick="goBack()">← 返回</button>
     <button class="tb-btn" onclick="resetZoom()">适应窗口</button>
     <button class="tb-btn active" id="dot-toggle" onclick="toggleDots()">● 热区点</button>
+    <div class="sep"></div>
+    <button class="tb-btn" id="comment-toggle" onclick="toggleCommentMode()">💬 写回 Figma</button>
   </div>
 </div>
+
+<!-- Figma Token 设置对话框 -->
+<div id="token-dialog">
+  <div class="td-box">
+    <h2>🔑 连接你的 Figma 账号</h2>
+    <p>评论将以你自己的 Figma 账号名义写入设计稿，其他人在 Figma 里能看到你的名字。<br><br>
+    获取 Token：Figma 右上角头像 → <b>Settings</b> → <b>Personal access tokens</b> → Generate new token（勾选 <code>file_comments:write</code>）</p>
+    <div class="td-label">Figma Personal Access Token</div>
+    <input id="token-input" class="td-input" type="password" placeholder="figd_xxxxxxxx…">
+    <div class="td-btns">
+      <button class="td-btn-cancel" onclick="closeTokenDialog()">取消</button>
+      <button class="td-btn-save" onclick="saveToken()">确认连接 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 评论输入弹窗 -->
+<div id="comment-popup">
+  <div class="cp-frame-hint">📍 写入 Figma：<span id="cp-frame-name"></span></div>
+  <textarea id="comment-text" placeholder="在这里写你的意见…"></textarea>
+  <div class="cp-btns">
+    <span class="cp-shortcut">⌘+Enter 提交</span>
+    <button class="cp-btn-cancel" onclick="closeCommentPopup()">取消</button>
+    <button class="cp-btn-submit" id="cp-submit" onclick="submitComment()">提交到 Figma</button>
+  </div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="comment-toast"></div>
 
 <div id="nav-panel">
   <h3>框架列表 (17)</h3>
@@ -494,6 +608,217 @@ document.addEventListener('keydown', e => {
 
 window.addEventListener('load', () => setTimeout(resetZoom, 80));
 window.addEventListener('resize', resetZoom);
+
+// ════════════════════════════════════════════════════════
+// Figma 评论写回功能
+// ════════════════════════════════════════════════════════
+const FIGMA_FILE_KEY = 'qCxA7SGLsiD9s3KL4DJCpP';
+
+// 交互稿帧 ID → Figma node ID + 原始尺寸
+const FIGMA_NODES = {
+  f00:  { nodeId:'8133:86',   w:1440, h:900  },
+  f01:  { nodeId:'8103:92',   w:1440, h:900  },
+  f02a: { nodeId:'8103:313',  w:1440, h:960  },
+  f02b: { nodeId:'8103:457',  w:1440, h:900  },
+  f02c: { nodeId:'8103:560',  w:1440, h:900  },
+  f02d: { nodeId:'8103:751',  w:1440, h:900  },
+  f03:  { nodeId:'8103:867',  w:1440, h:900  },
+  f03a: { nodeId:'8180:1109', w:1440, h:900  },
+  f03b: { nodeId:'8180:1447', w:1440, h:900  },
+  f03c: { nodeId:'8180:1786', w:1440, h:900  },
+  f04:  { nodeId:'8103:1063', w:1440, h:900  },
+  f05:  { nodeId:'8103:1194', w:1440, h:1100 },
+  f06:  { nodeId:'8103:1328', w:1440, h:1100 },
+  f07:  { nodeId:'8103:1462', w:1440, h:900  },
+  f08:  { nodeId:'8103:1480', w:1440, h:900  },
+  f09:  { nodeId:'8103:1500', w:1440, h:900  },
+  f10:  { nodeId:'8103:1531', w:1440, h:900  },
+};
+
+let commentMode = false;
+let pendingClick = null;   // { xPct, yPct, clientX, clientY }
+let localPinCount = 0;
+
+// ── Token 管理 ───────────────────────────────────────────
+function getToken()   { return sessionStorage.getItem('figma_token'); }
+function clearToken() { sessionStorage.removeItem('figma_token'); }
+
+function saveToken() {
+  const val = document.getElementById('token-input').value.trim();
+  if (!val) { document.getElementById('token-input').focus(); return; }
+  sessionStorage.setItem('figma_token', val);
+  document.getElementById('token-dialog').classList.remove('show');
+  // 如果有待处理的点击，继续弹出评论框
+  if (pendingClick) {
+    showCommentPopup(pendingClick.clientX, pendingClick.clientY);
+  }
+}
+
+function closeTokenDialog() {
+  document.getElementById('token-dialog').classList.remove('show');
+  pendingClick = null;
+}
+
+// Enter 确认 token
+document.getElementById('token-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveToken();
+  if (e.key === 'Escape') closeTokenDialog();
+});
+
+// ── 评论模式开关 ─────────────────────────────────────────
+function toggleCommentMode() {
+  commentMode = !commentMode;
+  document.body.classList.toggle('comment-mode', commentMode);
+  const btn = document.getElementById('comment-toggle');
+  btn.classList.toggle('comment-active', commentMode);
+  btn.textContent = commentMode ? '✕ 退出评论模式' : '💬 写回 Figma';
+  if (!commentMode) closeCommentPopup();
+}
+
+// ── 捕获点击 ─────────────────────────────────────────────
+document.addEventListener('click', e => {
+  if (!commentMode) return;
+  // 忽略工具栏、弹窗、导航区域的点击
+  if (e.target.closest('#toolbar, #token-dialog, #comment-popup, #nav-panel, #zoom-ctrl')) return;
+
+  const fw = document.querySelector('.frame-wrap.active');
+  if (!fw || !fw.contains(e.target)) return;
+  if (e.target.closest('.c-pin')) return;  // 忽略已有的 pin
+
+  e.preventDefault(); e.stopPropagation();
+
+  const rect = fw.getBoundingClientRect();
+  const xPct = (e.clientX - rect.left) / rect.width * 100;
+  const yPct = (e.clientY - rect.top)  / rect.height * 100;
+
+  pendingClick = { xPct, yPct, clientX: e.clientX, clientY: e.clientY };
+
+  if (!getToken()) {
+    document.getElementById('token-dialog').classList.add('show');
+    document.getElementById('token-input').value = '';
+    document.getElementById('token-input').focus();
+  } else {
+    showCommentPopup(e.clientX, e.clientY);
+  }
+}, true);  // capture 模式，优先于热区
+
+// ── 显示评论输入框 ───────────────────────────────────────
+function showCommentPopup(clientX, clientY) {
+  const popup = document.getElementById('comment-popup');
+  document.getElementById('cp-frame-name').textContent = frames[currentFrame]?.title || currentFrame;
+  popup.classList.add('show');
+
+  // 自动定位，避免超出视口
+  const pw = 280, ph = 148;
+  let left = clientX + 14;
+  let top  = clientY - 24;
+  if (left + pw > window.innerWidth  - 8) left = clientX - pw - 14;
+  if (top  + ph > window.innerHeight - 8) top  = window.innerHeight - ph - 8;
+  popup.style.left = Math.max(8, left) + 'px';
+  popup.style.top  = Math.max(8, top)  + 'px';
+
+  const ta = document.getElementById('comment-text');
+  ta.value = '';
+  ta.focus();
+  document.getElementById('cp-submit').disabled = false;
+  document.getElementById('cp-submit').textContent = '提交到 Figma';
+}
+
+function closeCommentPopup() {
+  document.getElementById('comment-popup').classList.remove('show');
+  pendingClick = null;
+}
+
+// Ctrl/Cmd+Enter 提交；Esc 取消
+document.getElementById('comment-text').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitComment(); }
+  if (e.key === 'Escape') closeCommentPopup();
+});
+
+// ── 提交评论到 Figma ─────────────────────────────────────
+async function submitComment() {
+  const text = document.getElementById('comment-text').value.trim();
+  if (!text) { document.getElementById('comment-text').focus(); return; }
+
+  const token = getToken();
+  if (!token) { closeCommentPopup(); return; }
+
+  const frameInfo = FIGMA_NODES[currentFrame];
+  if (!frameInfo) { showToast('❌ 此帧暂不支持评论'); return; }
+
+  const { xPct, yPct } = pendingClick;
+  const figmaX = Math.round(xPct / 100 * frameInfo.w);
+  const figmaY = Math.round(yPct / 100 * frameInfo.h);
+
+  const btn = document.getElementById('cp-submit');
+  btn.disabled = true;
+  btn.textContent = '写入 Figma…';
+
+  try {
+    const resp = await fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-FIGMA-TOKEN': token,   // Figma also accepts this header
+      },
+      body: JSON.stringify({
+        message: text,
+        client_meta: {
+          node_id: frameInfo.nodeId,
+          node_offset: { x: figmaX, y: figmaY }
+        }
+      })
+    });
+
+    if (resp.status === 403 || resp.status === 401) {
+      clearToken();
+      showToast('❌ Token 无效或已过期，请重新设置');
+      closeCommentPopup();
+      return;
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${resp.status}`);
+    }
+
+    closeCommentPopup();
+    showToast(`✓ 已写入 Figma：${frames[currentFrame]?.title}`);
+
+    // 在当前帧添加本地 Pin 标记（视觉反馈）
+    addLocalPin(xPct, yPct, text);
+
+  } catch (err) {
+    showToast('❌ 提交失败：' + err.message);
+    btn.disabled = false;
+    btn.textContent = '提交到 Figma';
+  }
+}
+
+// ── 本地 Pin 视觉反馈 ────────────────────────────────────
+function addLocalPin(xPct, yPct, text) {
+  const fw = document.querySelector('.frame-wrap.active');
+  if (!fw) return;
+  localPinCount++;
+  const pin = document.createElement('div');
+  pin.className = 'c-pin';
+  pin.dataset.n = localPinCount;
+  pin.title = text;
+  // Pin 尖端指向点击位置
+  pin.style.left = `calc(${xPct}% - 10px)`;
+  pin.style.top  = `calc(${yPct}% - 20px)`;
+  fw.appendChild(pin);
+}
+
+// ── Toast 通知 ───────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, duration = 3500) {
+  const t = document.getElementById('comment-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
 </script>
 </body>
 </html>
