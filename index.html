@@ -758,9 +758,8 @@ async function submitComment() {
     const resp = await fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'X-FIGMA-TOKEN': token,
         'Content-Type': 'application/json',
-        'X-FIGMA-TOKEN': token,   // Figma also accepts this header
       },
       body: JSON.stringify({
         message: text,
