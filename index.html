@@ -1178,15 +1178,22 @@ async function submitReply() {
   const text = document.getElementById('tp-reply-input').value.trim();
   if (!text || !activeRootId) return;
   const name = getSavedName() || 'Anonymous';
+  const btn = document.getElementById('tp-reply-btn') || document.querySelector('.tp-reply-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
   try {
-    const resp = await figmaPost({ message:`【${name}】${text}`, parent_id: activeRootId });
+    // 找根评论的 order_id（Figma API parent_id 需要 order_id）
+    const rootComment = allFigmaComments.find(c => c.id === activeRootId);
+    const parentId = rootComment?.order_id || activeRootId;
+    const resp = await figmaPost({ message:`【${name}】${text}`, parent_id: parentId });
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.message||`HTTP ${resp.status}`);
-    allFigmaComments.push(data);
     document.getElementById('tp-reply-input').value = '';
-    renderThread(activeRootId);
     showToast('✓ 回复已写入 Figma');
+    // 重新从 Figma 拉取最新评论（保证 parent_id 映射正确）
+    await refreshThreadComments();
+    renderThread(activeRootId);
   } catch(err) { showToast('❌ '+err.message); }
+  finally { if (btn) { btn.disabled=false; btn.textContent='Reply'; } }
 }
 document.getElementById('tp-reply-input').addEventListener('keydown', e => {
   e.stopPropagation();
@@ -1200,14 +1207,27 @@ async function submitPlusOne() {
   const btn = document.getElementById('tp-plusone');
   btn.disabled = true; btn.textContent = '…';
   try {
-    const resp = await figmaPost({ message:`【${name}】👍 +1`, parent_id: activeRootId });
+    const rootComment = allFigmaComments.find(c => c.id === activeRootId);
+    const parentId = rootComment?.order_id || activeRootId;
+    const resp = await figmaPost({ message:`【${name}】👍 +1`, parent_id: parentId });
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.message||`HTTP ${resp.status}`);
-    allFigmaComments.push(data);
-    renderThread(activeRootId);
     showToast('👍 +1 已发送');
+    await refreshThreadComments();
+    renderThread(activeRootId);
   } catch(err) { showToast('❌ '+err.message); }
   finally { btn.disabled=false; btn.textContent='👍 +1'; }
+}
+
+// ── 刷新评论缓存（reply/+1 后调用，不重建 pin）──────────
+async function refreshThreadComments() {
+  try {
+    const resp = await fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`,
+      { headers:{'X-FIGMA-TOKEN': FIGMA_SVC_TOKEN} });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    allFigmaComments = data.comments || [];
+  } catch(e) { console.log('refreshThreadComments failed', e); }
 }
 
 // ── 加载帧的 Figma 评论 ──────────────────────────────────
