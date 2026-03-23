@@ -72,70 +72,45 @@
     .del-text-overlay a{color:#FF4D4F;font-size:11px;font-weight:500;pointer-events:all;cursor:pointer;text-decoration:none;}
     .del-text-overlay a:hover{color:#ff7875;}
 
+    
     /* ════════════════════════════════════════════
-       PRD 标注系统 — 帧外黄色标签 + SVG 连线
+       PRD 标注 — 帧内 dot + 单个浮动 tooltip
     ════════════════════════════════════════════ */
 
-    /* 锚点圆圈（帧内，小圆点） */
+    /* 锚点圆圈 */
     .adot{
       position:absolute;z-index:30;
-      width:14px;height:14px;border-radius:50%;
+      width:16px;height:16px;border-radius:50%;
       transform:translate(-50%,-50%);
       display:none;align-items:center;justify-content:center;
-      font-size:8px;font-weight:700;color:#fff;
-      border:2px solid;box-shadow:0 1px 4px rgba(0,0,0,.4);
-      cursor:default;
+      font-size:9px;font-weight:700;color:#fff;
+      border:2px solid;box-shadow:0 1px 5px rgba(0,0,0,.45);
+      cursor:pointer;transition:transform .15s,box-shadow .15s;
     }
     body.prd-mode .adot{display:flex;}
-    .adot-new    {border-color:#52c41a;background:rgba(82,196,26,.85);}
-    .adot-changed{border-color:#fa8c16;background:rgba(250,140,22,.85);}
-    .adot-moved  {border-color:#1677ff;background:rgba(22,119,255,.85);}
+    .adot:hover{transform:translate(-50%,-50%) scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.55);}
+    .adot.adot-active{transform:translate(-50%,-50%) scale(1.3);}
+    .adot-new    {border-color:#52c41a;background:#52c41a;}
+    .adot-changed{border-color:#fa8c16;background:#fa8c16;}
+    .adot-moved  {border-color:#1677ff;background:#1677ff;}
     .adot::after{content:attr(data-n);}
 
-    /* 标注面板（帧右侧） */
-    .ap{
-      display:none;
-      width:250px;flex-shrink:0;
-      background:#FFFBE6;
-      border:1px solid #FFD666;
-      border-radius:8px;
-      padding:10px 12px;
-      margin-left:20px;
-      align-self:flex-start;
-      box-shadow:0 4px 16px rgba(0,0,0,.25);
+    /* 浮动 tooltip（全局一个，点击 dot 复用） */
+    #ap-tooltip{
+      position:fixed;z-index:3500;
+      background:#FFFBE6;border:1.5px solid #FFD666;
+      border-radius:8px;padding:10px 12px;
+      max-width:220px;min-width:140px;
+      font-size:11px;color:#5c4300;line-height:1.6;
+      box-shadow:0 6px 20px rgba(0,0,0,.22);
+      display:none;pointer-events:none;
     }
-    body.prd-mode .ap{display:block;}
-    .ap-hd{
-      font-size:10px;font-weight:600;color:#7c5200;
-      padding-bottom:7px;margin-bottom:7px;
-      border-bottom:1px solid #FFD666;
+    #ap-tooltip.show{display:block;}
+    #ap-tooltip .tt-badge{
+      display:inline-block;font-size:9px;font-weight:700;
+      padding:1px 5px;border-radius:3px;color:#fff;margin-bottom:5px;
     }
-    .ap-item{
-      display:flex;gap:6px;align-items:flex-start;
-      padding:5px 6px;border-radius:4px;margin-bottom:4px;
-      cursor:pointer;transition:background .12s;
-    }
-    .ap-item:hover{background:rgba(0,0,0,.07);}
-    .ap-item.ap-new    {border-left:2px solid #52c41a;}
-    .ap-item.ap-changed{border-left:2px solid #fa8c16;}
-    .ap-item.ap-moved  {border-left:2px solid #1677ff;}
-    .ap-num{
-      width:16px;height:16px;border-radius:50%;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;
-      font-size:9px;font-weight:700;color:#fff;
-    }
-    .ap-new .ap-num    {background:#52c41a;}
-    .ap-changed .ap-num{background:#fa8c16;}
-    .ap-moved .ap-num  {background:#1677ff;}
-    .ap-text{color:#5c4300;font-size:11px;line-height:1.55;}
-
-    /* SVG 连线（绝对定位，覆盖 .fc） */
-    .ap-svg{
-      position:absolute;top:0;left:0;
-      pointer-events:none;overflow:visible;
-      display:none;
-    }
-    body.prd-mode .ap-svg{display:block;}
+    #ap-tooltip .tt-text{font-size:11px;}
 
     /* ── 淡入动画 ── */
     .frame-enter{animation:fadeIn .2s ease;}
@@ -284,18 +259,11 @@
     <div class="adot adot-new" data-n="1" style="left:14.4%;top:9.0%"></div>
     <div class="adot adot-changed" data-n="2" style="left:17.2%;top:22.0%"></div>
     </div>
-  <div class="ap" id="ap-f00">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="14.4" data-ay="9.0">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增「+ 关联基金」按钮：支持批量关联实体基金</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="17.2" data-ay="22.0">
         <span class="ap-num">2</span>
         <span class="ap-text">列表只读化；导入/编辑/新建已迁至「基金实体」菜单</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f00"></svg>
   </div>
 
   <!-- F01 基金实体列表页 -->
@@ -349,12 +317,6 @@
     <div class="adot adot-changed" data-n="3" style="left:19.0%;top:23.4%"></div>
     <div class="adot adot-changed" data-n="4" style="left:86.0%;top:23.4%"></div>
     </div>
-  <div class="ap" id="ap-f01">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="2.5" data-ay="26.3">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增独立左侧菜单「基金实体」，统一管理入口</span>
-      </div>
       <div class="ap-item ap-new" data-ax="81.5" data-ay="8.2">
         <span class="ap-num">2</span>
         <span class="ap-text">「+新建实体」→ 独立创建表单页（F05）</span>
@@ -368,7 +330,6 @@
         <span class="ap-text">操作列：查看→F02a，编辑→F06，删除→F07（含前置校验）</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f01"></svg>
   </div>
 
   <!-- F02a 实体详情·基本信息 -->
@@ -385,12 +346,6 @@
     <div class="adot adot-changed" data-n="2" style="left:93.8%;top:8.1%"></div>
     <div class="adot adot-changed" data-n="3" style="left:15.8%;top:25.8%"></div>
     </div>
-  <div class="ap" id="ap-f02a">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="16.0" data-ay="14.8">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增4个Tab：基本信息 / 出资人管理 / 投资项目 / 修改记录</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="93.8" data-ay="8.1">
         <span class="ap-num">2</span>
         <span class="ap-text">点击「编辑」跳转独立编辑页（F06），不在此页内编辑</span>
@@ -400,7 +355,6 @@
         <span class="ap-text">所有字段为只读展示，灰色背景不可直接修改</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f02a"></svg>
   </div>
 
   <!-- F02b 实体详情·出资人管理 -->
@@ -422,12 +376,6 @@
     <div class="adot adot-new" data-n="2" style="left:16.0%;top:15.3%"></div>
     <div class="adot adot-moved" data-n="3" style="left:92.2%;top:32.2%"></div>
     </div>
-  <div class="ap" id="ap-f02b">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-moved" data-ax="84.4" data-ay="21.3">
-        <span class="ap-num">1</span>
-        <span class="ap-text">「+新增出资人」→ F09 弹窗表单（从虚拟基金详情迁入）</span>
-      </div>
       <div class="ap-item ap-new" data-ax="16.0" data-ay="15.3">
         <span class="ap-num">2</span>
         <span class="ap-text">Tab导航：点击可切换 基本信息/投资项目/修改记录 页</span>
@@ -437,7 +385,6 @@
         <span class="ap-text">编辑/删除操作从虚拟基金详情页迁入，逻辑不变</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f02b"></svg>
   </div>
 
   <!-- F02c 实体详情·投资项目 -->
@@ -453,18 +400,11 @@
     <div class="adot adot-moved" data-n="1" style="left:15.3%;top:12.8%"></div>
     <div class="adot adot-new" data-n="2" style="left:35.3%;top:24.2%"></div>
     </div>
-  <div class="ap" id="ap-f02c">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-moved" data-ax="15.3" data-ay="12.8">
-        <span class="ap-num">1</span>
-        <span class="ap-text">Tab：投资项目（只读），数据来自投资轨迹模块</span>
-      </div>
       <div class="ap-item ap-new" data-ax="35.3" data-ay="24.2">
         <span class="ap-num">2</span>
         <span class="ap-text">字段已更新：CID（原CIO）、去掉实体基金列、顶部新增项目名称搜索</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f02c"></svg>
   </div>
 
   <!-- F02d 实体详情·修改记录 -->
@@ -480,18 +420,11 @@
     <div class="adot adot-new" data-n="1" style="left:30.3%;top:16.0%"></div>
     <div class="adot adot-new" data-n="2" style="left:15.0%;top:26.1%"></div>
     </div>
-  <div class="ap" id="ap-f02d">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="30.3" data-ay="16.0">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增 Tab：修改记录，每次「保存」自动追加，不可删除</span>
-      </div>
       <div class="ap-item ap-new" data-ax="15.0" data-ay="26.1">
         <span class="ap-num">2</span>
         <span class="ap-text">每行 = 一次编辑操作，包含所有变更字段的旧值→新值</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f02d"></svg>
   </div>
 
   <!-- F03 虚拟基金详情+Drawer -->
@@ -532,12 +465,6 @@
     <div class="adot adot-new" data-n="4" style="left:68.0%;top:12.5%"></div>
     <div class="adot adot-changed" data-n="5" style="left:59.3%;top:20.0%"></div>
     </div>
-  <div class="ap" id="ap-f03">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="50.7" data-ay="11.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增「+关联基金」：批量关联实体基금（F04）</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="14.4" data-ay="20.0">
         <span class="ap-num">2</span>
         <span class="ap-text">实体列表只读化：原「编辑/新建」已移除，改为「查看/解除关联」</span>
@@ -555,7 +482,6 @@
         <span class="ap-text">操作列从「图标」改为文字「删除」（仅解除关联，不删实体）</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f03"></svg>
   </div>
 
   <!-- F03a Drawer·出资人 -->
@@ -602,18 +528,11 @@
     <div class="adot adot-new" data-n="1" style="left:73.1%;top:12.5%"></div>
     <div class="adot adot-moved" data-n="2" style="left:90.6%;top:19.9%"></div>
     </div>
-  <div class="ap" id="ap-f03a">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="73.1" data-ay="12.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">Drawer Tab：出资人 — 展示该实体下的出资人列表</span>
-      </div>
       <div class="ap-item ap-moved" data-ax="90.6" data-ay="19.9">
         <span class="ap-num">2</span>
         <span class="ap-text">「+新增出资人」从虚拟基金详情迁入，逻辑与F02b一致</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f03a"></svg>
   </div>
 
   <!-- F03b Drawer·所投项目 -->
@@ -650,14 +569,7 @@
     <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="adot adot-new" data-n="1" style="left:77.2%;top:12.5%"></div>
     </div>
-  <div class="ap" id="ap-f03b">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="77.2" data-ay="12.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">Drawer Tab：所投项目（只读）—— 数据来自投资轨迹</span>
-      </div>
   </div>
-    <svg class="ap-svg" id="sv-f03b"></svg>
   </div>
 
   <!-- F03c Drawer·修改记录 -->
@@ -694,14 +606,7 @@
     <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="adot adot-new" data-n="1" style="left:82.2%;top:12.5%"></div>
     </div>
-  <div class="ap" id="ap-f03c">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="82.2" data-ay="12.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">Drawer Tab：修改记录 —— 记录实体字段变更历史</span>
-      </div>
   </div>
-    <svg class="ap-svg" id="sv-f03c"></svg>
   </div>
 
   <!-- F04 关联基金弹窗 -->
@@ -714,18 +619,11 @@
     <div class="adot adot-changed" data-n="1" style="left:40.0%;top:22.0%"></div>
     <div class="adot adot-changed" data-n="2" style="left:71.5%;top:75.9%"></div>
     </div>
-  <div class="ap" id="ap-f04">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-changed" data-ax="40.0" data-ay="22.0">
-        <span class="ap-num">1</span>
-        <span class="ap-text">原「添加基金」弹窗 → 「关联基金」，支持多选，已关联行置灰</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="71.5" data-ay="75.9">
         <span class="ap-num">2</span>
         <span class="ap-text">「确认关联」提交后，实体出现在该虚拟基金的实体列表中</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f04"></svg>
   </div>
 
   <!-- F05 新建实体表单 -->
@@ -740,18 +638,11 @@
     <div class="adot adot-new" data-n="1" style="left:25.0%;top:1.5%"></div>
     <div class="adot adot-new" data-n="2" style="left:87.0%;top:94.6%"></div>
     </div>
-  <div class="ap" id="ap-f05">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="25.0" data-ay="1.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增独立创建页面，入口：F01 右上角「+新建实体」</span>
-      </div>
       <div class="ap-item ap-new" data-ax="87.0" data-ay="94.6">
         <span class="ap-num">2</span>
         <span class="ap-text">「保存」校验通过后跳转F02a；「取消」返回列表页不保存</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f05"></svg>
   </div>
 
   <!-- F06 编辑实体页面 -->
@@ -766,18 +657,11 @@
     <div class="adot adot-moved" data-n="1" style="left:28.1%;top:1.5%"></div>
     <div class="adot adot-changed" data-n="2" style="left:87.0%;top:94.6%"></div>
     </div>
-  <div class="ap" id="ap-f06">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-moved" data-ax="28.1" data-ay="1.5">
-        <span class="ap-num">1</span>
-        <span class="ap-text">编辑页从虚拟基金详情迁出，现为独立页面</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="87.0" data-ay="94.6">
         <span class="ap-num">2</span>
         <span class="ap-text">「保存」后自动在 F02d 追加一条修改记录</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f06"></svg>
   </div>
 
   <!-- F07 删除确认弹窗 -->
@@ -790,18 +674,11 @@
     <div class="adot adot-changed" data-n="1" style="left:33.3%;top:37.0%"></div>
     <div class="adot adot-changed" data-n="2" style="left:64.0%;top:61.0%"></div>
     </div>
-  <div class="ap" id="ap-f07">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-changed" data-ax="33.3" data-ay="37.0">
-        <span class="ap-num">1</span>
-        <span class="ap-text">前置校验：若实体已关联虚拟基金，则不允许删除，需先解除</span>
-      </div>
       <div class="ap-item ap-changed" data-ax="64.0" data-ay="61.0">
         <span class="ap-num">2</span>
         <span class="ap-text">「确定删除」需填写原因(必填)；删除后数据不可恢复</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f07"></svg>
   </div>
 
   <!-- F08 解除关联确认弹窗 -->
@@ -813,18 +690,11 @@
     <div class="adot adot-new" data-n="1" style="left:38.0%;top:48.0%"></div>
     <div class="adot adot-new" data-n="2" style="left:57.8%;top:58.6%"></div>
     </div>
-  <div class="ap" id="ap-f08">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-new" data-ax="38.0" data-ay="48.0">
-        <span class="ap-num">1</span>
-        <span class="ap-text">新增弹窗：解除关联只移除关联关系，实体本身数据不受影响</span>
-      </div>
       <div class="ap-item ap-new" data-ax="57.8" data-ay="58.6">
         <span class="ap-num">2</span>
         <span class="ap-text">「确认解除」不可撤销；解除后实体不再显示在该虚拟基金下</span>
       </div>
   </div>
-    <svg class="ap-svg" id="sv-f08"></svg>
   </div>
 
   <!-- F09 出资人新增弹窗 -->
@@ -836,14 +706,7 @@
     <div class="hs" data-tip="关闭 ✕" onclick="goto('f02b')" style="left:80.4%;top:4.5%;width:2.0%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="adot adot-moved" data-n="1" style="left:18.3%;top:5.6%"></div>
     </div>
-  <div class="ap" id="ap-f09">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-moved" data-ax="18.3" data-ay="5.6">
-        <span class="ap-num">1</span>
-        <span class="ap-text">入口从虚拟基金详情迁出，现在 F02b 出资人管理Tab</span>
-      </div>
   </div>
-    <svg class="ap-svg" id="sv-f09"></svg>
   </div>
 
   <!-- F10 导入弹窗 -->
@@ -854,14 +717,7 @@
     <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:54.2%;top:61.0%;width:4.2%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="adot adot-moved" data-n="1" style="left:34.3%;top:35.3%"></div>
     </div>
-  <div class="ap" id="ap-f10">
-    <div class="ap-hd">📋 变更说明</div>
-      <div class="ap-item ap-moved" data-ax="34.3" data-ay="35.3">
-        <span class="ap-num">1</span>
-        <span class="ap-text">导入弹窗从虚拟基金详情迁出；支持实体基金和出资人两种模板</span>
-      </div>
   </div>
-    <svg class="ap-svg" id="sv-f10"></svg>
   </div>
 
 </div>
@@ -914,6 +770,7 @@
   </div>
 </div>
 
+<div id="ap-tooltip"></div>
 <div id="comment-toast"></div>
 
 <script>
@@ -987,78 +844,127 @@ function toggleDots() {
 }
 
 // ── PRD 标注系统 ─────────────────────────────────────────
+const ANNO = {
+  f00:[
+    {ax:14.4,ay:9.0,type:'new',text:'新增「+ 关联基金」按钮：支持批量关联实体基金'},
+    {ax:17.2,ay:22.0,type:'changed',text:'列表只读化；导入/编辑/新建已迁至「基金实体」菜单'},
+  ],
+  f01:[
+    {ax:2.5,ay:26.3,type:'new',text:'新增独立左侧菜单「基金实体」，统一管理入口'},
+    {ax:81.5,ay:8.2,type:'new',text:'「+新建实体」→ 独立创建表单页（F05）'},
+    {ax:19.0,ay:23.4,type:'changed',text:'点击绿色基金简称 = 点击「查看」，进入实体详情'},
+    {ax:86.0,ay:23.4,type:'changed',text:'操作列：查看→F02a / 编辑→F06 / 删除→F07'},
+  ],
+  f02a:[
+    {ax:16.0,ay:14.8,type:'new',text:'新增4个Tab：基本信息/出资人管理/投资项目/修改记录'},
+    {ax:93.8,ay:8.1,type:'changed',text:'点击「编辑」跳转独立编辑页（F06）'},
+    {ax:15.8,ay:25.8,type:'changed',text:'所有字段只读展示，不可直接修改'},
+  ],
+  f02b:[
+    {ax:84.4,ay:21.3,type:'moved',text:'「+新增出资人」→ F09 弹窗（从虚拟基金详情迁入）'},
+    {ax:16.0,ay:15.3,type:'new',text:'Tab导航：可切换基本信息/投资项目/修改记录'},
+    {ax:92.2,ay:32.2,type:'moved',text:'编辑/删除操作从虚拟基金详情迁入'},
+  ],
+  f02c:[
+    {ax:15.3,ay:12.8,type:'moved',text:'Tab：投资项目（只读），数据来自投资轨迹'},
+    {ax:35.3,ay:24.2,type:'new',text:'字段更新：CID、去掉实体基金列、顶部新增搜索框'},
+  ],
+  f02d:[
+    {ax:30.3,ay:16.0,type:'new',text:'新增Tab：每次「保存」自动追加修改记录'},
+    {ax:15.0,ay:26.1,type:'new',text:'每行=一次编辑操作，含变更字段旧值→新值'},
+  ],
+  f03:[
+    {ax:50.7,ay:11.5,type:'new',text:'新增「+关联基金」：批量关联实体基金（F04）'},
+    {ax:14.4,ay:20.0,type:'changed',text:'实体列表只读化：原「编辑/新建」→「查看/删除」'},
+    {ax:92.6,ay:5.2,type:'new',text:'Drawer「查看」：跳转实体详情页（F02a）'},
+    {ax:68.0,ay:12.5,type:'new',text:'Drawer新增4个Tab：基本信息/出资人/所投项目/修改记录'},
+  ],
+  f03a:[
+    {ax:73.1,ay:12.5,type:'new',text:'Drawer Tab：出资人列表'},
+    {ax:90.6,ay:19.9,type:'moved',text:'「+新增出资人」从虚拟基金详情迁入'},
+  ],
+  f03b:[{ax:77.2,ay:12.5,type:'new',text:'Drawer Tab：所投项目（只读，来自投资轨迹）'}],
+  f03c:[{ax:82.2,ay:12.5,type:'new',text:'Drawer Tab：修改记录（字段变更历史）'}],
+  f04:[
+    {ax:40.0,ay:22.0,type:'changed',text:'原「添加基金」→「关联基金」，多选，已关联置灰'},
+    {ax:71.5,ay:75.9,type:'changed',text:'「确认关联」提交后实体出现在该虚拟基金列表'},
+  ],
+  f05:[
+    {ax:25.0,ay:1.5,type:'new',text:'新增独立创建页，入口：F01 右上角「+新建实体」'},
+    {ax:87.0,ay:94.6,type:'new',text:'「保存」→跳F02a；「取消」→返回列表不保存'},
+  ],
+  f06:[
+    {ax:28.1,ay:1.5,type:'moved',text:'编辑页从虚拟基金详情迁出，现为独立页面'},
+    {ax:87.0,ay:94.6,type:'changed',text:'「保存」后自动在F02d追加修改记录'},
+  ],
+  f07:[
+    {ax:33.3,ay:37.0,type:'changed',text:'前置校验：若已关联虚拟基金则不允许删除'},
+    {ax:64.0,ay:61.0,type:'changed',text:'「确定删除」需填写原因；删除不可恢复'},
+  ],
+  f08:[
+    {ax:38.0,ay:48.0,type:'new',text:'新增弹窗：仅解除关联，不删除实体数据'},
+    {ax:57.8,ay:58.6,type:'new',text:'「确认解除」不可撤销；解除后不再显示在该虚拟基金下'},
+  ],
+  f09:[{ax:18.3,ay:5.6,type:'moved',text:'入口从虚拟基金详情迁出，现在F02b出资人Tab'}],
+  f10:[{ax:34.3,ay:35.3,type:'moved',text:'导入弹窗从虚拟基金详情迁出；支持两种模板'}],
+};
+
+let activeAdot = null;
+const apTooltip = document.getElementById('ap-tooltip');
+
 function togglePRD() {
   const on = document.body.classList.toggle('prd-mode');
   const btn = document.getElementById('prd-btn');
   btn.classList.toggle('prd-active', on);
   btn.textContent = on ? '📋 关闭说明' : '📋 PRD 说明';
-  if (on) setTimeout(()=>drawAnnoLines(currentFrame), 60);
-  else clearAnnoLines();
+  if (!on) hideAdotTooltip();
 }
 
-function drawAnnoLines(fid) {
-  const fc = document.getElementById('fc-'+fid);
-  const fw = document.getElementById('fw-'+fid);
-  const ap = document.getElementById('ap-'+fid);
-  const svg = document.getElementById('sv-'+fid);
-  if (!fc||!fw||!ap||!svg) return;
+function showAdotTooltip(dot, item) {
+  const TYPE_MAP = {new:['🟢 新增','#52c41a'],changed:['🟠 变更','#fa8c16'],moved:['🔵 迁移','#1677ff']};
+  const [label, col] = TYPE_MAP[item.type] || ['📋','#888'];
+  apTooltip.innerHTML =
+    `<div class="tt-badge" style="background:${col}">${label}</div>` +
+    `<div class="tt-text">${item.text}</div>`;
 
-  const fcR = fc.getBoundingClientRect();
-  const fwR = fw.getBoundingClientRect();
-  svg.style.width  = fcR.width  + 'px';
-  svg.style.height = Math.max(fcR.height, fwR.height) + 'px';
-  svg.innerHTML = '';
+  // 定位：靠近 dot，优先在右侧，否则在左侧
+  const dr = dot.getBoundingClientRect();
+  const tw = 230, th = 90;
+  let left = dr.right + 12;
+  let top  = dr.top - 10;
+  if (left + tw > window.innerWidth - 8) left = dr.left - tw - 12;
+  if (top  + th > window.innerHeight - 8) top = window.innerHeight - th - 8;
+  if (top < 50) top = 50;
 
-  ap.querySelectorAll('.ap-item').forEach(item => {
-    const ax = parseFloat(item.dataset.ax)/100 * fwR.width  + (fwR.left-fcR.left);
-    const ay = parseFloat(item.dataset.ay)/100 * fwR.height + (fwR.top -fcR.top);
-    const iR = item.getBoundingClientRect();
-    const bx = iR.left - fcR.left;
-    const by = iR.top  - fcR.top + iR.height/2;
-    const mx = ax + (bx-ax)*0.55;
-    const col = item.classList.contains('ap-new') ? '#52c41a'
-              : item.classList.contains('ap-moved')? '#1677ff' : '#fa8c16';
-
-    // Bezier 曲线
-    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d', `M ${ax} ${ay} C ${mx} ${ay} ${mx} ${by} ${bx} ${by}`);
-    p.setAttribute('stroke',col); p.setAttribute('stroke-width','1.2');
-    p.setAttribute('fill','none'); p.setAttribute('stroke-dasharray','4 3');
-    p.setAttribute('opacity','0.7');
-    svg.appendChild(p);
-
-    // 箭头
-    const arr = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    arr.setAttribute('points',`${bx},${by} ${bx-7},${by-3} ${bx-7},${by+3}`);
-    arr.setAttribute('fill',col); arr.setAttribute('opacity','0.7');
-    svg.appendChild(arr);
-
-    // 起点圆圈
-    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',ax); c.setAttribute('cy',ay); c.setAttribute('r','3');
-    c.setAttribute('fill',col); c.setAttribute('opacity','0.85');
-    svg.appendChild(c);
-  });
+  apTooltip.style.left = left + 'px';
+  apTooltip.style.top  = top  + 'px';
+  apTooltip.classList.add('show');
 }
 
-function clearAnnoLines() {
-  document.querySelectorAll('.ap-svg').forEach(s => s.innerHTML='');
+function hideAdotTooltip() {
+  apTooltip.classList.remove('show');
+  if (activeAdot) { activeAdot.classList.remove('adot-active'); activeAdot = null; }
 }
 
-// PRD 条目点击高亮对应锚点
+// 点击 dot → 显示/隐藏 tooltip
 document.addEventListener('click', e => {
-  const item = e.target.closest('.ap-item');
-  if (!item) return;
-  const panel = item.closest('.ap');
-  if (!panel) return;
-  const fid = panel.id.replace('ap-','');
-  const idx = Array.from(panel.querySelectorAll('.ap-item')).indexOf(item)+1;
-  const dot = document.querySelector('#fw-'+fid+' .adot[data-n="'+idx+'"]');
+  const dot = e.target.closest('.adot');
   if (dot) {
-    dot.style.transform = 'translate(-50%,-50%) scale(1.8)';
-    setTimeout(()=>dot.style.transform='translate(-50%,-50%) scale(1)',600);
+    e.stopPropagation();
+    if (activeAdot === dot) { hideAdotTooltip(); return; }
+    hideAdotTooltip();
+    const fid = dot.closest('.frame-wrap').id.replace('fw-','');
+    const n   = parseInt(dot.dataset.n) - 1;
+    const item = (ANNO[fid] || [])[n];
+    if (!item) return;
+    activeAdot = dot;
+    dot.classList.add('adot-active');
+    showAdotTooltip(dot, item);
+    return;
   }
-});
+  // 点击其他地方关闭 tooltip
+  if (!e.target.closest('#ap-tooltip')) hideAdotTooltip();
+}, false);
 
 // ── 缩放 ─────────────────────────────────────────────────
 function getActiveFrameH() {
@@ -1086,6 +992,7 @@ function applyZoom() {
 }
 
 document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   if(e.key==='Backspace'||e.key==='ArrowLeft') goBack();
   if(e.key==='='||e.key==='+') zoom(+0.1);
   if(e.key==='-') zoom(-0.1);
@@ -1136,6 +1043,7 @@ function confirmName() {
   if (!commentMode) { enterCommentMode(); }
 }
 document.getElementById('name-input').addEventListener('keydown', e => {
+  e.stopPropagation();
   if (e.key === 'Enter') confirmName();
   if (e.key === 'Escape') document.getElementById('name-dialog').classList.remove('show');
 });
@@ -1209,6 +1117,7 @@ function closeCommentPopup() {
   pendingClick = null;
 }
 document.getElementById('comment-text').addEventListener('keydown', e => {
+  e.stopPropagation();
   if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); submitComment(); }
   if (e.key==='Escape') closeCommentPopup();
 });
@@ -1369,6 +1278,7 @@ async function submitReply() {
   } catch(err) { showToast('❌ '+err.message); }
 }
 document.getElementById('tp-reply-input').addEventListener('keydown', e => {
+  e.stopPropagation();
   if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); submitReply(); }
 });
 
