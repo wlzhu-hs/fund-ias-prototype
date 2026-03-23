@@ -2,359 +2,240 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fund IAS · 实体基金 · 交互稿 v3</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Fund IAS · 实体基金 · 交互稿 v4</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#1a1a1a; font-family:-apple-system,sans-serif; overflow:hidden; height:100vh; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#1a1a1a;font-family:-apple-system,sans-serif;overflow:hidden;height:100vh;}
 
-    #toolbar {
-      position:fixed; top:0; left:0; right:0; z-index:1000;
-      height:40px; background:#2d2d2d; display:flex; align-items:center;
-      padding:0 16px; gap:12px; border-bottom:1px solid #444;
+    /* ── 工具栏 ── */
+    #toolbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      height:40px;background:#2d2d2d;display:flex;align-items:center;
+      padding:0 16px;gap:12px;border-bottom:1px solid #444;
     }
-    #toolbar .logo { color:#f0f0f0; font-weight:600; font-size:13px; }
-    #toolbar .sep { width:1px; height:20px; background:#555; }
-    #toolbar .frame-name { color:#aaa; font-size:12px; }
-    #toolbar .frame-name span { color:#6fb3ff; }
-    #toolbar .spacer { flex:1; }
-    #toolbar .btn-group { display:flex; gap:6px; }
-    .tb-btn {
-      background:#444; color:#ccc; border:none; padding:4px 10px;
-      border-radius:4px; font-size:11px; cursor:pointer; transition:background .15s;
+    #toolbar .logo{color:#f0f0f0;font-weight:600;font-size:13px;}
+    #toolbar .sep{width:1px;height:20px;background:#555;}
+    #toolbar .frame-name{color:#aaa;font-size:12px;}
+    #toolbar .frame-name span{color:#6fb3ff;}
+    #toolbar .spacer{flex:1;}
+    #toolbar .btn-group{display:flex;gap:6px;}
+    .tb-btn{background:#444;color:#ccc;border:none;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;transition:background .15s;}
+    .tb-btn:hover{background:#555;color:#fff;}
+    .tb-btn.active{background:#6fb3ff;color:#fff;}
+    .tb-btn.comment-active{background:#FF6B2B!important;color:#fff!important;}
+    .tb-btn.prd-active{background:#faad14!important;color:#000!important;}
+
+    /* ── 舞台 ── */
+    #stage{
+      position:fixed;top:40px;left:0;right:0;bottom:0;
+      display:flex;align-items:flex-start;justify-content:center;
+      overflow:auto;padding:24px;
     }
-    .tb-btn:hover { background:#555; color:#fff; }
-    .tb-btn.active { background:#6fb3ff; color:#fff; }
+    #stage.nav-open{left:220px;}
 
-    #stage {
-      position:fixed; top:40px; left:0; right:0; bottom:0;
-      display:flex; align-items:center; justify-content:center; overflow:auto;
+    /* ── Frame 容器（flex 横排）── */
+    .fc{
+      position:relative;
+      display:flex;align-items:flex-start;gap:0;
+      flex-shrink:0;
     }
-    #stage.nav-open { left:220px; }
-
-    .frame-wrap {
-      position:relative; display:none;
-      box-shadow:0 8px 40px rgba(0,0,0,.7); width:1440px; flex-shrink:0;
+    .frame-wrap{
+      position:relative;display:none;
+      box-shadow:0 8px 40px rgba(0,0,0,.7);
+      flex-shrink:0;
     }
-    .frame-wrap.active { display:inline-block; }
-    .frame-wrap img { display:block; width:100%; height:auto; }
+    .frame-wrap.active{display:inline-block;}
+    .frame-wrap img{display:block;width:100%;height:auto;}
+    .fw-900 {aspect-ratio:1440/900;}
+    .fw-960 {aspect-ratio:1440/960;}
+    .fw-1100{aspect-ratio:1440/1100;}
 
-    .fw-900  { aspect-ratio:1440/900; }
-    .fw-960  { aspect-ratio:1440/960; }
-    .fw-1100 { aspect-ratio:1440/1100; }
-
-    .hs {
-      position:absolute; cursor:pointer;
-      background:transparent; border-radius:4px;
-      transition:background .12s;
-    }
-    .hs:hover { background:rgba(111,179,255,.15); outline:1px dashed rgba(111,179,255,.4); }
-
-    .hs[data-tip]:hover::before {
-      content:attr(data-tip);
-      position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-      background:#111; color:#eee; font-size:10px; white-space:nowrap;
-      padding:3px 7px; border-radius:4px; pointer-events:none; z-index:99;
-      border:1px solid #333;
+    /* ── 热区 ── */
+    .hs{position:absolute;cursor:pointer;background:transparent;border-radius:4px;transition:background .12s;}
+    .hs:hover{background:rgba(111,179,255,.15);outline:1px dashed rgba(111,179,255,.4);}
+    .hs[data-tip]:hover::before{
+      content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+      background:#111;color:#eee;font-size:10px;white-space:nowrap;
+      padding:3px 7px;border-radius:4px;pointer-events:none;z-index:99;border:1px solid #333;
     }
 
-    /* ── 脉冲圆点 ─────────────── */
-    .dot {
-      position:absolute;
-      width:10px; height:10px;
-      pointer-events:none;
+    /* ── 脉冲圆点 ── */
+    .dot{position:absolute;width:10px;height:10px;pointer-events:none;transform:translate(-50%,-50%);z-index:6;}
+    .dot::before{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:#FF6B2B;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 5px rgba(255,107,43,.9);}
+    .dot::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:rgba(255,107,43,.5);top:50%;left:50%;transform:translate(-50%,-50%);animation:ping 1.8s ease-out infinite;}
+    @keyframes ping{0%{transform:translate(-50%,-50%) scale(1);opacity:.7;}70%{transform:translate(-50%,-50%) scale(3.2);opacity:0;}100%{transform:translate(-50%,-50%) scale(3.2);opacity:0;}}
+    body.hide-dots .dot{display:none;}
+
+    /* ── 删除文字覆盖 ── */
+    .del-text-overlay{position:absolute;z-index:12;pointer-events:none;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:2px;}
+    .del-text-overlay a{color:#FF4D4F;font-size:11px;font-weight:500;pointer-events:all;cursor:pointer;text-decoration:none;}
+    .del-text-overlay a:hover{color:#ff7875;}
+
+    /* ════════════════════════════════════════════
+       PRD 标注系统 — 帧外黄色标签 + SVG 连线
+    ════════════════════════════════════════════ */
+
+    /* 锚点圆圈（帧内，小圆点） */
+    .adot{
+      position:absolute;z-index:30;
+      width:14px;height:14px;border-radius:50%;
       transform:translate(-50%,-50%);
-      z-index:6;
+      display:none;align-items:center;justify-content:center;
+      font-size:8px;font-weight:700;color:#fff;
+      border:2px solid;box-shadow:0 1px 4px rgba(0,0,0,.4);
+      cursor:default;
     }
-    .dot::before {
-      content:'';
-      position:absolute;
-      width:8px; height:8px; border-radius:50%;
-      background:#FF6B2B;
-      top:50%; left:50%; transform:translate(-50%,-50%);
-      box-shadow:0 0 5px rgba(255,107,43,.9);
-    }
-    .dot::after {
-      content:'';
-      position:absolute;
-      width:10px; height:10px; border-radius:50%;
-      background:rgba(255,107,43,.5);
-      top:50%; left:50%; transform:translate(-50%,-50%);
-      animation:ping 1.8s ease-out infinite;
-    }
-    @keyframes ping {
-      0%   { transform:translate(-50%,-50%) scale(1);   opacity:.7; }
-      70%  { transform:translate(-50%,-50%) scale(3.2); opacity:0; }
-      100% { transform:translate(-50%,-50%) scale(3.2); opacity:0; }
-    }
-    body.hide-dots .dot { display:none; }
+    body.prd-mode .adot{display:flex;}
+    .adot-new    {border-color:#52c41a;background:rgba(82,196,26,.85);}
+    .adot-changed{border-color:#fa8c16;background:rgba(250,140,22,.85);}
+    .adot-moved  {border-color:#1677ff;background:rgba(22,119,255,.85);}
+    .adot::after{content:attr(data-n);}
 
-    .frame-enter { animation:fadeIn .2s ease; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    /* 标注面板（帧右侧） */
+    .ap{
+      display:none;
+      width:250px;flex-shrink:0;
+      background:#FFFBE6;
+      border:1px solid #FFD666;
+      border-radius:8px;
+      padding:10px 12px;
+      margin-left:20px;
+      align-self:flex-start;
+      box-shadow:0 4px 16px rgba(0,0,0,.25);
+    }
+    body.prd-mode .ap{display:block;}
+    .ap-hd{
+      font-size:10px;font-weight:600;color:#7c5200;
+      padding-bottom:7px;margin-bottom:7px;
+      border-bottom:1px solid #FFD666;
+    }
+    .ap-item{
+      display:flex;gap:6px;align-items:flex-start;
+      padding:5px 6px;border-radius:4px;margin-bottom:4px;
+      cursor:pointer;transition:background .12s;
+    }
+    .ap-item:hover{background:rgba(0,0,0,.07);}
+    .ap-item.ap-new    {border-left:2px solid #52c41a;}
+    .ap-item.ap-changed{border-left:2px solid #fa8c16;}
+    .ap-item.ap-moved  {border-left:2px solid #1677ff;}
+    .ap-num{
+      width:16px;height:16px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;color:#fff;
+    }
+    .ap-new .ap-num    {background:#52c41a;}
+    .ap-changed .ap-num{background:#fa8c16;}
+    .ap-moved .ap-num  {background:#1677ff;}
+    .ap-text{color:#5c4300;font-size:11px;line-height:1.55;}
 
-    #nav-panel {
-      position:fixed; top:40px; left:0; bottom:0; width:220px;
-      background:#252525; border-right:1px solid #3a3a3a;
-      padding:12px 0; overflow-y:auto; z-index:900;
-      transform:translateX(-100%); transition:transform .25s ease;
+    /* SVG 连线（绝对定位，覆盖 .fc） */
+    .ap-svg{
+      position:absolute;top:0;left:0;
+      pointer-events:none;overflow:visible;
+      display:none;
     }
-    #nav-panel.open { transform:translateX(0); }
-    #nav-panel h3 { color:#888; font-size:10px; text-transform:uppercase; letter-spacing:.8px; padding:0 12px 8px; }
-    .nav-item {
-      padding:7px 12px; color:#bbb; font-size:12px; cursor:pointer;
-      border-left:2px solid transparent; transition:all .12s; line-height:1.3;
-    }
-    .nav-item:hover { background:#333; color:#fff; }
-    .nav-item.active { background:#2a3a50; color:#6fb3ff; border-left-color:#6fb3ff; }
-    .nav-sep { height:1px; background:#3a3a3a; margin:6px 0; }
+    body.prd-mode .ap-svg{display:block;}
 
-    #zoom-ctrl {
-      position:fixed; bottom:16px; right:16px; z-index:1000;
-      background:#2d2d2d; border:1px solid #444; border-radius:6px;
-      display:flex; align-items:center; overflow:hidden;
-    }
-    .z-btn {
-      background:none; border:none; color:#ccc; width:32px; height:32px;
-      font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:background .12s;
-    }
-    .z-btn:hover { background:#444; color:#fff; }
-    #zoom-label { color:#aaa; font-size:11px; padding:0 8px; min-width:44px; text-align:center; }
+    /* ── 淡入动画 ── */
+    .frame-enter{animation:fadeIn .2s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 
-    /* ── Figma 评论模式 ── */
-    body.comment-mode .frame-wrap.active { cursor: crosshair !important; }
-    body.comment-mode .hs { pointer-events: none !important; }
-    body.comment-mode .dot { display: none !important; }
-    .tb-btn.comment-active { background: #FF6B2B !important; color: #fff !important; }
+    /* ── 左侧导航 ── */
+    #nav-panel{
+      position:fixed;top:40px;left:0;bottom:0;width:220px;
+      background:#252525;border-right:1px solid #3a3a3a;
+      padding:12px 0;overflow-y:auto;z-index:900;
+      transform:translateX(-100%);transition:transform .25s ease;
+    }
+    #nav-panel.open{transform:translateX(0);}
+    #nav-panel h3{color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:0 12px 8px;}
+    .nav-item{padding:7px 12px;color:#bbb;font-size:12px;cursor:pointer;border-left:2px solid transparent;transition:all .12s;line-height:1.3;}
+    .nav-item:hover{background:#333;color:#fff;}
+    .nav-item.active{background:#2a3a50;color:#6fb3ff;border-left-color:#6fb3ff;}
+    .nav-sep{height:1px;background:#3a3a3a;margin:6px 0;}
 
-    /* 姓名设置弹窗（首次使用） */
-    #name-dialog {
-      position:fixed; inset:0; z-index:3000;
-      background:rgba(0,0,0,.75);
-      display:none; align-items:center; justify-content:center;
-    }
-    #name-dialog.show { display:flex; }
-    .nd-box {
-      background:#2d2d2d; border-radius:10px; padding:24px; width:320px;
-      border:1px solid #555; box-shadow:0 16px 48px rgba(0,0,0,.6);
-    }
-    .nd-box h2 { color:#fff; font-size:14px; margin-bottom:6px; }
-    .nd-box p  { color:#aaa; font-size:12px; margin-bottom:14px; line-height:1.5; }
-    #name-input {
-      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
-      padding:9px 12px; border-radius:5px; font-size:13px; margin-bottom:12px;
-      box-sizing:border-box;
-    }
-    #name-input:focus { outline:none; border-color:#FF6B2B; }
-    .nd-btn {
-      width:100%; background:#FF6B2B; color:#fff; border:none; padding:9px;
-      border-radius:5px; cursor:pointer; font-size:13px; font-weight:500;
-    }
-    .nd-btn:hover { background:#e55a20; }
+    /* ── 缩放 ── */
+    #zoom-ctrl{position:fixed;bottom:16px;right:16px;z-index:1000;background:#2d2d2d;border:1px solid #444;border-radius:6px;display:flex;align-items:center;overflow:hidden;}
+    .z-btn{background:none;border:none;color:#ccc;width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+    .z-btn:hover{background:#444;color:#fff;}
+    #zoom-label{color:#aaa;font-size:11px;padding:0 8px;min-width:44px;text-align:center;}
 
-    /* 新评论输入弹窗 */
-    #comment-popup {
-      position:fixed; z-index:2000;
-      background:#2d2d2d; border:1px solid #555; border-radius:8px;
-      padding:12px; width:300px;
-      display:none; box-shadow:0 8px 28px rgba(0,0,0,.6);
-    }
-    #comment-popup.show { display:block; }
-    .cp-author-row {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;
-    }
-    .cp-author-row .cp-as { color:#888; font-size:10px; }
-    .cp-author-row .cp-name { color:#FF6B2B; font-size:10px; font-weight:500; }
-    .cp-author-row .cp-change { color:#6fb3ff; font-size:10px; background:none; border:none; cursor:pointer; padding:0; }
-    #comment-text {
-      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
-      padding:8px; border-radius:4px; font-size:12px; resize:none;
-      height:72px; font-family:-apple-system,sans-serif; margin-bottom:8px;
-      box-sizing:border-box;
-    }
-    #comment-text:focus { outline:none; border-color:#FF6B2B; }
-    #comment-popup .cp-btns { display:flex; gap:6px; justify-content:flex-end; align-items:center; }
-    #comment-popup .cp-shortcut { color:#666; font-size:10px; flex:1; }
-    .cp-btn-cancel { background:#444; color:#ccc; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; }
-    .cp-btn-submit { background:#FF6B2B; color:#fff; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:500; }
-    .cp-btn-submit:disabled { opacity:.45; cursor:not-allowed; }
-
-    /* Pin 标记（可拖动、可点击） */
-    .c-pin {
-      position:absolute; z-index:15;
-      width:24px; height:24px; border-radius:50% 50% 50% 0;
-      background:#FF5722; transform:rotate(-45deg);
-      box-shadow:0 2px 8px rgba(0,0,0,.5);
-      cursor:pointer; user-select:none;
-      transition:box-shadow .15s;
-    }
-    .c-pin:hover { background:#e64919; box-shadow:0 4px 14px rgba(0,0,0,.6); }
-    .c-pin.dragging { opacity:.8; cursor:grabbing !important; z-index:999; }
-    .c-pin::after {
-      content:attr(data-n);
-      position:absolute; inset:0; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      transform:rotate(45deg);
-      color:#fff; font-size:9px; font-weight:700;
-      pointer-events:none;
-    }
-
-    /* 评论线程弹窗（点击 Pin 查看） */
-    #thread-popup {
-      position:fixed; z-index:2500;
-      background:#2d2d2d; border:1px solid #555; border-radius:8px;
-      width:320px; max-height:460px;
-      display:none; flex-direction:column;
-      box-shadow:0 8px 28px rgba(0,0,0,.65);
-      overflow:hidden;
-    }
-    #thread-popup.show { display:flex; }
-    .tp-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 12px; border-bottom:1px solid #3a3a3a; flex-shrink:0;
-    }
-    .tp-header-title { color:#aaa; font-size:11px; }
-    .tp-header-title b { color:#FF6B2B; }
-    .tp-close { background:none; border:none; color:#777; cursor:pointer; font-size:15px; line-height:1; }
-    .tp-close:hover { color:#eee; }
-    .tp-body { flex:1; overflow-y:auto; padding:10px 12px; }
-    .tp-empty { color:#666; font-size:12px; text-align:center; padding:20px 0; }
-    .tp-item { margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #333; }
-    .tp-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
-    .tp-meta { display:flex; justify-content:space-between; margin-bottom:4px; }
-    .tp-author { color:#FF6B2B; font-size:11px; font-weight:500; }
-    .tp-time   { color:#555; font-size:10px; }
-    .tp-msg    { color:#ddd; font-size:12px; line-height:1.55; word-break:break-word; }
-    .tp-msg.is-plusone { color:#888; font-size:11px; }
-    .tp-footer { padding:10px 12px; border-top:1px solid #3a3a3a; flex-shrink:0; }
-    .tp-plusone-btn {
-      background:#3a3a3a; color:#bbb; border:none; padding:4px 10px;
-      border-radius:4px; cursor:pointer; font-size:11px; margin-bottom:8px;
-      transition:background .12s;
-    }
-    .tp-plusone-btn:hover { background:#4a4a4a; color:#fff; }
-    .tp-reply-row { display:flex; gap:6px; align-items:flex-end; }
-    .tp-reply-input {
-      flex:1; background:#1a1a1a; border:1px solid #555; color:#eee;
-      padding:6px 8px; border-radius:4px; font-size:11px; resize:none;
-      height:28px; font-family:-apple-system,sans-serif; box-sizing:border-box;
-      transition:height .15s, border-color .12s;
-    }
-    .tp-reply-input:focus { outline:none; border-color:#FF6B2B; height:52px; }
-    .tp-reply-btn {
-      background:#555; color:#fff; border:none; padding:5px 10px;
-      border-radius:4px; cursor:pointer; font-size:11px; white-space:nowrap;
-      align-self:flex-end;
-    }
-    .tp-reply-btn:hover { background:#FF6B2B; }
-
-    /* Toast 提示 */
-    #comment-toast {
-      position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
-      background:#1e1e1e; color:#eee; padding:8px 18px; border-radius:20px;
-      font-size:12px; z-index:4000; border:1px solid #444;
-      opacity:0; transition:opacity .25s; pointer-events:none;
-      white-space:nowrap;
-    }
-    #comment-toast.show { opacity:1; }
-
-    /* ── PRD 说明标注 ── */
-    .prd-badge {
-      position:absolute; z-index:50; pointer-events:none;
-    }
-    body.prd-mode .prd-badge { display:block; }
-    body:not(.prd-mode) .prd-badge { display:none; }
-    .prd-tag {
-      display:inline-block; background:var(--c,#1677ff); color:#fff;
-      font-size:9.5px; padding:2px 6px; border-radius:3px;
-      white-space:nowrap; box-shadow:0 2px 6px rgba(0,0,0,.35);
-      line-height:1.4; max-width:200px; white-space:normal;
-      cursor:default; pointer-events:auto;
-    }
-    .prd-tag::before {
-      content:'📋 ';
-    }
-
-    /* ── 列文字覆盖（用白色遮住原图标，显示新文字）── */
-    .del-text-overlay {
-      position:absolute; z-index:12; pointer-events:none;
-      background:#fff; display:flex; align-items:center;
-      justify-content:center; border-radius:2px;
-    }
-    .del-text-overlay a {
-      color:#FF4D4F; font-size:11px; font-weight:500;
-      pointer-events:all; cursor:pointer;
-      text-decoration:none;
-    }
-    .del-text-overlay a:hover { color:#ff7875; }
+    /* ── 评论相关（姓名/弹窗/线程/toast 保持不变） ── */
+    #name-dialog{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;}
+    #name-dialog.show{display:flex;}
+    .nd-box{background:#2d2d2d;border-radius:10px;padding:24px;width:320px;border:1px solid #555;box-shadow:0 16px 48px rgba(0,0,0,.6);}
+    .nd-box h2{color:#fff;font-size:14px;margin-bottom:6px;}
+    .nd-box p{color:#aaa;font-size:12px;margin-bottom:14px;line-height:1.5;}
+    #name-input{width:100%;background:#1a1a1a;border:1px solid #555;color:#eee;padding:9px 12px;border-radius:5px;font-size:13px;margin-bottom:12px;box-sizing:border-box;}
+    #name-input:focus{outline:none;border-color:#FF6B2B;}
+    .nd-btn{width:100%;background:#FF6B2B;color:#fff;border:none;padding:9px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:500;}
+    .nd-btn:hover{background:#e55a20;}
+    #comment-popup{position:fixed;z-index:2000;background:#2d2d2d;border:1px solid #555;border-radius:8px;padding:12px;width:300px;display:none;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+    #comment-popup.show{display:block;}
+    .cp-author-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #3a3a3a;}
+    .cp-author-row .cp-as{color:#888;font-size:10px;}
+    .cp-author-row .cp-name{color:#FF6B2B;font-size:10px;font-weight:500;}
+    .cp-author-row .cp-change{color:#6fb3ff;font-size:10px;background:none;border:none;cursor:pointer;padding:0;}
+    #comment-text{width:100%;background:#1a1a1a;border:1px solid #555;color:#eee;padding:8px;border-radius:4px;font-size:12px;resize:none;height:72px;font-family:-apple-system,sans-serif;margin-bottom:8px;box-sizing:border-box;}
+    #comment-text:focus{outline:none;border-color:#FF6B2B;}
+    #comment-popup .cp-btns{display:flex;gap:6px;justify-content:flex-end;align-items:center;}
+    #comment-popup .cp-shortcut{color:#666;font-size:10px;flex:1;}
+    .cp-btn-cancel{background:#444;color:#ccc;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;}
+    .cp-btn-submit{background:#FF6B2B;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:500;}
+    .cp-btn-submit:disabled{opacity:.45;cursor:not-allowed;}
+    .c-pin{position:absolute;z-index:15;width:24px;height:24px;border-radius:50% 50% 50% 0;background:#FF5722;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;user-select:none;transition:box-shadow .15s;}
+    .c-pin:hover{background:#e64919;box-shadow:0 4px 14px rgba(0,0,0,.6);}
+    .c-pin.dragging{opacity:.8;cursor:grabbing!important;z-index:999;}
+    .c-pin::after{content:attr(data-n);position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(45deg);color:#fff;font-size:9px;font-weight:700;pointer-events:none;}
+    #thread-popup{position:fixed;z-index:2500;background:#2d2d2d;border:1px solid #555;border-radius:8px;width:320px;max-height:460px;display:none;flex-direction:column;box-shadow:0 8px 28px rgba(0,0,0,.65);overflow:hidden;}
+    #thread-popup.show{display:flex;}
+    .tp-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #3a3a3a;flex-shrink:0;}
+    .tp-header-title{color:#aaa;font-size:11px;}.tp-header-title b{color:#FF6B2B;}
+    .tp-close{background:none;border:none;color:#777;cursor:pointer;font-size:15px;line-height:1;}
+    .tp-close:hover{color:#eee;}
+    .tp-body{flex:1;overflow-y:auto;padding:10px 12px;}
+    .tp-empty{color:#666;font-size:12px;text-align:center;padding:20px 0;}
+    .tp-item{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #333;}
+    .tp-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+    .tp-meta{display:flex;justify-content:space-between;margin-bottom:4px;}
+    .tp-author{color:#FF6B2B;font-size:11px;font-weight:500;}
+    .tp-time{color:#555;font-size:10px;}
+    .tp-msg{color:#ddd;font-size:12px;line-height:1.55;word-break:break-word;}
+    .tp-msg.is-plusone{color:#888;font-size:11px;}
+    .tp-footer{padding:10px 12px;border-top:1px solid #3a3a3a;flex-shrink:0;}
+    .tp-plusone-btn{background:#3a3a3a;color:#bbb;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;margin-bottom:8px;transition:background .12s;}
+    .tp-plusone-btn:hover{background:#4a4a4a;color:#fff;}
+    .tp-reply-row{display:flex;gap:6px;align-items:flex-end;}
+    .tp-reply-input{flex:1;background:#1a1a1a;border:1px solid #555;color:#eee;padding:6px 8px;border-radius:4px;font-size:11px;resize:none;height:28px;font-family:-apple-system,sans-serif;box-sizing:border-box;transition:height .15s,border-color .12s;}
+    .tp-reply-input:focus{outline:none;border-color:#FF6B2B;height:52px;}
+    .tp-reply-btn{background:#555;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;white-space:nowrap;align-self:flex-end;}
+    .tp-reply-btn:hover{background:#FF6B2B;}
+    #comment-toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:#1e1e1e;color:#eee;padding:8px 18px;border-radius:20px;font-size:12px;z-index:4000;border:1px solid #444;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+    #comment-toast.show{opacity:1;}
   </style>
 </head>
 <body>
 
+<!-- 工具栏 -->
 <div id="toolbar">
   <button class="tb-btn" id="nav-toggle" onclick="toggleNav()">☰ 页面</button>
   <div class="sep"></div>
-  <div class="logo">Fund IAS · 实体基金</div>
+  <div class="logo">Fund IAS · 实体基금</div>
   <div class="sep"></div>
-  <div class="frame-name">当前：<span id="frame-title">F00 · 虚拟基金列表</span></div>
+  <div class="frame-name">当前：<span id="frame-title">F00 · 虚拟基금列表</span></div>
   <div class="spacer"></div>
   <div class="btn-group">
     <button class="tb-btn" onclick="goBack()">← 返回</button>
     <button class="tb-btn" onclick="resetZoom()">适应窗口</button>
     <button class="tb-btn active" id="dot-toggle" onclick="toggleDots()">● 热区点</button>
+    <button class="tb-btn" id="prd-btn" onclick="togglePRD()">📋 PRD 说明</button>
     <div class="sep"></div>
-    <button class="tb-btn" id="prd-toggle" onclick="togglePRD()">📋 PRD 说明</button>
     <button class="tb-btn" id="comment-toggle" onclick="toggleCommentMode()">💬 Comment</button>
   </div>
 </div>
 
-<!-- 姓名设置弹窗（首次点 Comment 时出现） -->
-<div id="name-dialog">
-  <div class="nd-box">
-    <h2>👋 你是谁？</h2>
-    <p>输入你的名字，之后所有评论都会用这个名字，无需重复填写。</p>
-    <input id="name-input" type="text" placeholder="输入你的名字" maxlength="30" autocomplete="off">
-    <button class="nd-btn" onclick="confirmName()">开始评论 →</button>
-  </div>
-</div>
-
-<!-- 新评论输入弹窗 -->
-<div id="comment-popup">
-  <div class="cp-author-row">
-    <span class="cp-as">Commenting as </span>
-    <span class="cp-name" id="cp-author-name"></span>
-    <button class="cp-change" onclick="openNameDialog()">· change</button>
-  </div>
-  <textarea id="comment-text" placeholder="写下你的意见…"></textarea>
-  <div class="cp-btns">
-    <span class="cp-shortcut">⌘+Enter 提交</span>
-    <button class="cp-btn-cancel" onclick="closeCommentPopup()">取消</button>
-    <button class="cp-btn-submit" id="cp-submit" onclick="submitComment()">Submit</button>
-  </div>
-</div>
-
-<!-- 评论线程弹窗（点击 Pin 查看） -->
-<div id="thread-popup">
-  <div class="tp-header">
-    <span class="tp-header-title">💬 Comments · <b id="tp-count">0</b></span>
-    <button class="tp-close" onclick="closeThreadPopup()">✕</button>
-  </div>
-  <div class="tp-body" id="tp-body">
-    <div class="tp-empty">Loading…</div>
-  </div>
-  <div class="tp-footer">
-    <button class="tp-plusone-btn" id="tp-plusone" onclick="submitPlusOne()">👍 +1</button>
-    <div class="tp-reply-row">
-      <textarea class="tp-reply-input" id="tp-reply-input" placeholder="补充评论…" rows="1"></textarea>
-      <button class="tp-reply-btn" onclick="submitReply()">Reply</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast 提示 -->
-<div id="comment-toast"></div>
-
+<!-- 导航面板 -->
 <div id="nav-panel">
   <h3>框架列表 (17)</h3>
   <div class="nav-item active" onclick="goto('f00')" data-frame="f00">F00 虚拟基金列表</div>
@@ -383,10 +264,12 @@
   <div class="nav-sep"></div>
 </div>
 
+<!-- 舞台 -->
 <div id="stage">
-  <!-- ===== F00 F00 虚拟基金列表 ===== -->
-  <div class="frame-wrap fw-900 active" id="fw-f00">
-    <img src="frames/F00-virtual-fund-list.png?v=2" alt="F00 虚拟基金列表">
+  <!-- F00 虚拟基金列表 -->
+  <div class="fc" id="fc-f00">
+    <div class="frame-wrap fw-900 active" id="fw-f00">
+      <img src="frames/F00-virtual-fund-list.png" alt="F00 虚拟基金列表">
     <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.7%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="查看 RMBIV" onclick="goto('f03')" style="left:16.7%;top:21.8%;width:8.0%;height:6.2%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="删除 RMBIV" onclick="goto('f07')" style="left:91.4%;top:21.8%;width:5.8%;height:6.2%"><span class="dot" style="left:50%;top:50%"></span></div>
@@ -398,367 +281,680 @@
     <div class="hs" data-tip="删除 RMBV" onclick="goto('f07')" style="left:91.4%;top:40.4%;width:5.8%;height:6.2%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="查看 RMBVII" onclick="goto('f03')" style="left:16.7%;top:46.7%;width:8.0%;height:6.2%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="删除 RMBVII" onclick="goto('f07')" style="left:91.4%;top:46.7%;width:5.8%;height:6.2%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:14.0%;top:7.5%;"><span class="prd-tag" style="--c:#1677ff">新增「+ 关联基金」批量关联功能</span></div>
-    <div class="prd-badge" style="left:14.0%;top:22.5%;"><span class="prd-tag" style="--c:#fa8c16">列表变为只读，导入/编辑/新建已迁至「基金实体」菜单</span></div>
+    <div class="adot adot-new" data-n="1" style="left:14.4%;top:9.0%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:17.2%;top:22.0%"></div>
+    </div>
+  <div class="ap" id="ap-f00">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="14.4" data-ay="9.0">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增「+ 关联基金」按钮：支持批量关联实体基金</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="17.2" data-ay="22.0">
+        <span class="ap-num">2</span>
+        <span class="ap-text">列表只读化；导入/编辑/新建已迁至「基金实体」菜单</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f00"></svg>
   </div>
 
-  <!-- ===== F01 F01 基金实体列表页 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f01">
-    <img src="frames/F01-fund-entity-list.png?v=3" alt="F01 基金实体列表页">
+  <!-- F01 基金实体列表页 -->
+  <div class="fc" id="fc-f01">
+    <div class="frame-wrap fw-900" id="fw-f01">
+      <img src="frames/F01-fund-entity-list.png" alt="F01 基金实体列表页">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="+ 新建实体" onclick="goto('f05')" style="left:81.5%;top:8.2%;width:6.9%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:21.5%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第1行" onclick="goto('f02a')" style="left:88.2%;top:21.5%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第1行" onclick="goto('f06')" style="left:92.5%;top:21.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第1行" onclick="goto('f07')" style="left:95.5%;top:21.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:25.9%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第2行" onclick="goto('f02a')" style="left:88.2%;top:25.9%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第2行" onclick="goto('f06')" style="left:92.5%;top:25.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第2行" onclick="goto('f07')" style="left:95.5%;top:25.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:30.4%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第3行" onclick="goto('f02a')" style="left:88.2%;top:30.4%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第3行" onclick="goto('f06')" style="left:92.5%;top:30.4%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第3行" onclick="goto('f07')" style="left:95.5%;top:30.4%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:34.8%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第4行" onclick="goto('f02a')" style="left:88.2%;top:34.8%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第4行" onclick="goto('f06')" style="left:92.5%;top:34.8%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第4行" onclick="goto('f07')" style="left:95.5%;top:34.8%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:39.3%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第5行" onclick="goto('f02a')" style="left:88.2%;top:39.3%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第5行" onclick="goto('f06')" style="left:92.5%;top:39.3%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第5行" onclick="goto('f07')" style="left:95.5%;top:39.3%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:43.7%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第6行" onclick="goto('f02a')" style="left:88.2%;top:43.7%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第6行" onclick="goto('f06')" style="left:92.5%;top:43.7%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第6行" onclick="goto('f07')" style="left:95.5%;top:43.7%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:48.2%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第7行" onclick="goto('f02a')" style="left:88.2%;top:48.2%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第7行" onclick="goto('f06')" style="left:92.5%;top:48.2%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第7行" onclick="goto('f07')" style="left:95.5%;top:48.2%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:52.6%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第8行" onclick="goto('f02a')" style="left:88.2%;top:52.6%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第8行" onclick="goto('f06')" style="left:92.5%;top:52.6%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第8行" onclick="goto('f07')" style="left:95.5%;top:52.6%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:57.1%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第9行" onclick="goto('f02a')" style="left:88.2%;top:57.1%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第9行" onclick="goto('f06')" style="left:92.5%;top:57.1%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第9行" onclick="goto('f07')" style="left:95.5%;top:57.1%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="点击基金简称查看详情" onclick="goto('f02a')" style="left:18.9%;top:61.5%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看第10行" onclick="goto('f02a')" style="left:88.2%;top:61.5%;width:5.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑第10行" onclick="goto('f06')" style="left:92.5%;top:61.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除第10行" onclick="goto('f07')" style="left:95.5%;top:61.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:15.0%;top:3.5%;"><span class="prd-tag" style="--c:#52c41a">新增独立菜单，实体基金统一管理入口</span></div>
-    <div class="prd-badge" style="left:81.5%;top:5.0%;"><span class="prd-tag" style="--c:#1677ff">「+ 新建实体」→ 独立新建页面(F05)</span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:22.9%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第1行" onclick="goto('f02a')" style="left:86.0%;top:22.9%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第1行" onclick="goto('f06')" style="left:89.1%;top:22.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第1行" onclick="goto('f07')" style="left:91.8%;top:22.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:27.4%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第2行" onclick="goto('f02a')" style="left:86.0%;top:27.4%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第2行" onclick="goto('f06')" style="left:89.1%;top:27.4%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第2行" onclick="goto('f07')" style="left:91.8%;top:27.4%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:31.799999999999997%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第3行" onclick="goto('f02a')" style="left:86.0%;top:31.799999999999997%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第3行" onclick="goto('f06')" style="left:89.1%;top:31.799999999999997%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第3行" onclick="goto('f07')" style="left:91.8%;top:31.799999999999997%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:36.3%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第4行" onclick="goto('f02a')" style="left:86.0%;top:36.3%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第4行" onclick="goto('f06')" style="left:89.1%;top:36.3%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第4行" onclick="goto('f07')" style="left:91.8%;top:36.3%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:40.7%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第5行" onclick="goto('f02a')" style="left:86.0%;top:40.7%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第5行" onclick="goto('f06')" style="left:89.1%;top:40.7%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第5行" onclick="goto('f07')" style="left:91.8%;top:40.7%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:45.2%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第6行" onclick="goto('f02a')" style="left:86.0%;top:45.2%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第6行" onclick="goto('f06')" style="left:89.1%;top:45.2%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第6行" onclick="goto('f07')" style="left:91.8%;top:45.2%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:49.6%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第7行" onclick="goto('f02a')" style="left:86.0%;top:49.6%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第7行" onclick="goto('f06')" style="left:89.1%;top:49.6%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第7行" onclick="goto('f07')" style="left:91.8%;top:49.6%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:54.1%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第8行" onclick="goto('f02a')" style="left:86.0%;top:54.1%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第8行" onclick="goto('f06')" style="left:89.1%;top:54.1%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第8行" onclick="goto('f07')" style="left:91.8%;top:54.1%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:58.5%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第9行" onclick="goto('f02a')" style="left:86.0%;top:58.5%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第9行" onclick="goto('f06')" style="left:89.1%;top:58.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第9行" onclick="goto('f07')" style="left:91.8%;top:58.5%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="点击基金简称" onclick="goto('f02a')" style="left:18.3%;top:62.9%;width:6.1%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看第10行" onclick="goto('f02a')" style="left:86.0%;top:62.9%;width:4.5%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑第10行" onclick="goto('f06')" style="left:89.1%;top:62.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除第10行" onclick="goto('f07')" style="left:91.8%;top:62.9%;width:3.0%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-new" data-n="1" style="left:2.5%;top:26.3%"></div>
+    <div class="adot adot-new" data-n="2" style="left:81.5%;top:8.2%"></div>
+    <div class="adot adot-changed" data-n="3" style="left:19.0%;top:23.4%"></div>
+    <div class="adot adot-changed" data-n="4" style="left:86.0%;top:23.4%"></div>
+    </div>
+  <div class="ap" id="ap-f01">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="2.5" data-ay="26.3">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增独立左侧菜单「基金实体」，统一管理入口</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="81.5" data-ay="8.2">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「+新建实体」→ 独立创建表单页（F05）</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="19.0" data-ay="23.4">
+        <span class="ap-num">3</span>
+        <span class="ap-text">点击绿色基金简称 = 点击「查看」，均进入实体详情页</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="86.0" data-ay="23.4">
+        <span class="ap-num">4</span>
+        <span class="ap-text">操作列：查看→F02a，编辑→F06，删除→F07（含前置校验）</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f01"></svg>
   </div>
 
-  <!-- ===== F02A F02a 实体详情·基本信息 ===== -->
-  <div class="frame-wrap fw-960" id="fw-f02a">
-    <img src="frames/F02a-entity-detail-basic.png?v=2" alt="F02a 实体详情·基本信息">
+  <!-- F02a 实体详情·基本信息 -->
+  <div class="fc" id="fc-f02a">
+    <div class="frame-wrap fw-960" id="fw-f02a">
+      <img src="frames/F02a-entity-detail-basic.png" alt="F02a 实体详情·基本信息">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:16.3%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:18.9%;top:1.8%;width:3.3%;height:1.8%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:93.8%;top:8.1%;width:4.2%;height:3.3%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="出资人管理 Tab" onclick="goto('f02b')" style="left:22.9%;top:13.8%;width:7.4%;height:4.2%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="投资项目 Tab" onclick="goto('f02c')" style="left:30.6%;top:13.8%;width:6.9%;height:4.2%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="修改记录 Tab" onclick="goto('f02d')" style="left:37.5%;top:13.8%;width:6.9%;height:4.2%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:60.0%;top:5.0%;"><span class="prd-tag" style="--c:#1677ff">只读模式；点击「编辑」跳转独立编辑页(F06)</span></div>
-    <div class="prd-badge" style="left:14.2%;top:11.5%;"><span class="prd-tag" style="--c:#52c41a">新增 Tab 导航：基本信息/出资人/投资项目/修改记录</span></div>
+    <div class="adot adot-new" data-n="1" style="left:16.0%;top:14.8%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:93.8%;top:8.1%"></div>
+    <div class="adot adot-changed" data-n="3" style="left:15.8%;top:25.8%"></div>
+    </div>
+  <div class="ap" id="ap-f02a">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="16.0" data-ay="14.8">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增4个Tab：基本信息 / 出资人管理 / 投资项目 / 修改记录</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="93.8" data-ay="8.1">
+        <span class="ap-num">2</span>
+        <span class="ap-text">点击「编辑」跳转独立编辑页（F06），不在此页内编辑</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="15.8" data-ay="25.8">
+        <span class="ap-num">3</span>
+        <span class="ap-text">所有字段为只读展示，灰色背景不可直接修改</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f02a"></svg>
   </div>
 
-  <!-- ===== F02B F02b 实体详情·出资人管理 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f02b">
-    <img src="frames/F02b-entity-detail-investor.png?v=3" alt="F02b 实体详情·出资人管理">
+  <!-- F02b 实体详情·出资人管理 -->
+  <div class="fc" id="fc-f02b">
+    <div class="frame-wrap fw-900" id="fw-f02b">
+      <img src="frames/F02b-entity-detail-investor.png" alt="F02b 实体详情·出资人管理">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:18.9%;top:1.9%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:93.8%;top:8.7%;width:4.2%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="基本信息 Tab" onclick="goto('f02a')" style="left:16.0%;top:14.2%;width:6.9%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="投资项目 Tab" onclick="goto('f02c')" style="left:30.6%;top:14.2%;width:6.9%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="修改记录 Tab" onclick="goto('f02d')" style="left:37.5%;top:14.2%;width:6.9%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')" style="left:85.6%;top:21.0%;width:6.9%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人1" onclick="goto('f09')" style="left:91.4%;top:30.3%;width:2.8%;height:2.400000000000002%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人2" onclick="goto('f09')" style="left:91.4%;top:34.7%;width:2.8%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人3" onclick="goto('f09')" style="left:91.4%;top:39.2%;width:2.8%;height:2.3999999999999986%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人4" onclick="goto('f09')" style="left:91.4%;top:43.6%;width:2.8%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:14.2%;top:11.5%;"><span class="prd-tag" style="--c:#fa8c16">从虚拟基金详情迁出；新增「导入」批量导入功能</span></div>
+    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')" style="left:84.4%;top:21.3%;width:8.6%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人1" onclick="goto('f09')" style="left:91.4%;top:31.2%;width:2.8%;height:2.6000000000000023%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人2" onclick="goto('f09')" style="left:91.4%;top:35.7%;width:2.8%;height:2.5999999999999988%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人3" onclick="goto('f09')" style="left:91.4%;top:40.1%;width:2.8%;height:2.5999999999999988%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人4" onclick="goto('f09')" style="left:91.4%;top:44.6%;width:2.8%;height:2.5999999999999988%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-moved" data-n="1" style="left:84.4%;top:21.3%"></div>
+    <div class="adot adot-new" data-n="2" style="left:16.0%;top:15.3%"></div>
+    <div class="adot adot-moved" data-n="3" style="left:92.2%;top:32.2%"></div>
+    </div>
+  <div class="ap" id="ap-f02b">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-moved" data-ax="84.4" data-ay="21.3">
+        <span class="ap-num">1</span>
+        <span class="ap-text">「+新增出资人」→ F09 弹窗表单（从虚拟基金详情迁入）</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="16.0" data-ay="15.3">
+        <span class="ap-num">2</span>
+        <span class="ap-text">Tab导航：点击可切换 基本信息/投资项目/修改记录 页</span>
+      </div>
+      <div class="ap-item ap-moved" data-ax="92.2" data-ay="32.2">
+        <span class="ap-num">3</span>
+        <span class="ap-text">编辑/删除操作从虚拟基金详情页迁入，逻辑不变</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f02b"></svg>
   </div>
 
-  <!-- ===== F02C F02c 实体详情·投资项目 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f02c">
-    <img src="frames/F02c-entity-detail-projects.png?v=3" alt="F02c 实体详情·投资项目">
+  <!-- F02c 实体详情·投资项目 -->
+  <div class="fc" id="fc-f02c">
+    <div class="frame-wrap fw-900" id="fw-f02c">
+      <img src="frames/F02c-entity-detail-projects.png" alt="F02c 实体详情·投资项目">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.9%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:19.8%;top:1.8%;width:3.6%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:93.1%;top:7.2%;width:4.9%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="基本信息 Tab" onclick="goto('f02a')" style="left:15.3%;top:12.8%;width:5.8%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="出资人管理 Tab" onclick="goto('f02b')" style="left:21.1%;top:12.8%;width:6.7%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="修改记录 Tab" onclick="goto('f02d')" style="left:33.7%;top:12.8%;width:5.4%;height:4.4%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:14.0%;top:10.5%;"><span class="prd-tag" style="--c:#fa8c16">只读，数据来自投资轨迹。字段：序号/项目名(中)/项目名(英)/CID/所属行业/投资阶段/状态/负责人</span></div>
+    <div class="adot adot-moved" data-n="1" style="left:15.3%;top:12.8%"></div>
+    <div class="adot adot-new" data-n="2" style="left:35.3%;top:24.2%"></div>
+    </div>
+  <div class="ap" id="ap-f02c">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-moved" data-ax="15.3" data-ay="12.8">
+        <span class="ap-num">1</span>
+        <span class="ap-text">Tab：投资项目（只读），数据来自投资轨迹模块</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="35.3" data-ay="24.2">
+        <span class="ap-num">2</span>
+        <span class="ap-text">字段已更新：CID（原CIO）、去掉实体基金列、顶部新增项目名称搜索</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f02c"></svg>
   </div>
 
-  <!-- ===== F02D F02d 实体详情·修改记录 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f02d">
-    <img src="frames/F02d-entity-detail-history.png?v=3" alt="F02d 实体详情·修改记录">
+  <!-- F02d 实体详情·修改记录 -->
+  <div class="fc" id="fc-f02d">
+    <div class="frame-wrap fw-900" id="fw-f02d">
+      <img src="frames/F02d-entity-detail-history.png" alt="F02d 实体详情·修改记录">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.3%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:15.0%;top:2.2%;width:14.6%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:91.7%;top:1.3%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="基本信息 Tab" onclick="goto('f02a')" style="left:15.6%;top:14.9%;width:4.7%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="出资人管理 Tab" onclick="goto('f02b')" style="left:20.3%;top:14.9%;width:5.3%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="投资项目 Tab" onclick="goto('f02c')" style="left:25.6%;top:14.9%;width:3.3%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:15.0%;top:11.5%;"><span class="prd-tag" style="--c:#52c41a">新增 Tab；每次「保存」自动追加变更记录，不可手动删除</span></div>
+    <div class="hs" data-tip="返回 基금실体" onclick="goto('f01')" style="left:15.0%;top:2.2%;width:14.6%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑实体" onclick="goto('f06')" style="left:91.7%;top:1.7%;width:4.7%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="基本信息 Tab" onclick="goto('f02a')" style="left:15.6%;top:15.0%;width:4.7%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="出资人管理 Tab" onclick="goto('f02b')" style="left:20.3%;top:15.0%;width:5.3%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="投资项目 Tab" onclick="goto('f02c')" style="left:25.6%;top:15.0%;width:3.3%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-new" data-n="1" style="left:30.3%;top:16.0%"></div>
+    <div class="adot adot-new" data-n="2" style="left:15.0%;top:26.1%"></div>
+    </div>
+  <div class="ap" id="ap-f02d">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="30.3" data-ay="16.0">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增 Tab：修改记录，每次「保存」自动追加，不可删除</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="15.0" data-ay="26.1">
+        <span class="ap-num">2</span>
+        <span class="ap-text">每行 = 一次编辑操作，包含所有变更字段的旧值→新值</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f02d"></svg>
   </div>
 
-  <!-- ===== F03 F03 虚拟基金详情+Drawer ===== -->
-  <div class="frame-wrap fw-900" id="fw-f03">
-    <img src="frames/F03-virtual-fund-detail-drawer.png?v=3" alt="F03 虚拟基金详情+Drawer">
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.2%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:26.0%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:14.4%;top:7.2%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看实体详情→F02a" onclick="goto('f02a')" style="left:93.3%;top:1.2%;width:4.2%;height:3.1%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:5.0%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体1" onclick="goto('f03')" style="left:14.4%;top:15.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联1" onclick="goto('f08')" style="left:58.6%;top:15.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体2" onclick="goto('f03')" style="left:14.4%;top:19.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联2" onclick="goto('f08')" style="left:58.6%;top:19.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体3" onclick="goto('f03')" style="left:14.4%;top:23.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联3" onclick="goto('f08')" style="left:58.6%;top:23.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体4" onclick="goto('f03')" style="left:14.4%;top:27.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联4" onclick="goto('f08')" style="left:58.6%;top:27.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体5" onclick="goto('f03')" style="left:14.4%;top:30.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联5" onclick="goto('f08')" style="left:58.6%;top:30.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体6" onclick="goto('f03')" style="left:14.4%;top:34.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联6" onclick="goto('f08')" style="left:58.6%;top:34.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体7" onclick="goto('f03')" style="left:14.4%;top:38.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联7" onclick="goto('f08')" style="left:58.6%;top:38.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体8" onclick="goto('f03')" style="left:14.4%;top:42.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联8" onclick="goto('f08')" style="left:58.6%;top:42.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体9" onclick="goto('f03')" style="left:14.4%;top:45.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联9" onclick="goto('f08')" style="left:58.6%;top:45.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体10" onclick="goto('f03')" style="left:14.4%;top:49.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联10" onclick="goto('f08')" style="left:58.6%;top:49.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:16.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:20.0%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:23.8%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:27.6%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:31.3%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:35.1%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:38.9%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:42.7%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:46.4%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="del-text-overlay" style="left:58.0%;top:50.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="prd-badge" style="left:14.4%;top:5.0%;"><span class="prd-tag" style="--c:#fa8c16">变更：实体列表只读化；操作由「编辑/删除」→「查看/解除关联」</span></div>
-    <div class="prd-badge" style="left:14.4%;top:9.5%;"><span class="prd-tag" style="--c:#1677ff">新增：「+ 关联基金」批量关联功能</span></div>
-    <div class="prd-badge" style="left:67.0%;top:3.0%;"><span class="prd-tag" style="--c:#52c41a">Drawer 新增 4 个 Tab：基本信息/出资人/所投项目/修改记录</span></div>
+  <!-- F03 虚拟基金详情+Drawer -->
+  <div class="fc" id="fc-f03">
+    <div class="frame-wrap fw-960" id="fw-f03">
+      <img src="frames/F03-virtual-fund-detail-drawer.png" alt="F03 虚拟基金详情+Drawer">
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:20.1%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.4%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:50.7%;top:11.5%;width:7.6%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')" style="left:92.6%;top:5.2%;width:4.7%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:11.5%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:19.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:19.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:22.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:22.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:26.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:26.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:29.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:29.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:33.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:33.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:37.0%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:37.0%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:40.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:40.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:44.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:44.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:47.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:47.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03')" style="left:14.4%;top:51.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="del-text-overlay" style="left:57.8%;top:19.8%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:23.3%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:26.9%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:30.4%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:34.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:37.5%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:41.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:44.6%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:48.1%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:51.7%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="adot adot-new" data-n="1" style="left:50.7%;top:11.5%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:14.4%;top:20.0%"></div>
+    <div class="adot adot-new" data-n="3" style="left:92.6%;top:5.2%"></div>
+    <div class="adot adot-new" data-n="4" style="left:68.0%;top:12.5%"></div>
+    <div class="adot adot-changed" data-n="5" style="left:59.3%;top:20.0%"></div>
+    </div>
+  <div class="ap" id="ap-f03">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="50.7" data-ay="11.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增「+关联基金」：批量关联实体基금（F04）</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="14.4" data-ay="20.0">
+        <span class="ap-num">2</span>
+        <span class="ap-text">实体列表只读化：原「编辑/新建」已移除，改为「查看/解除关联」</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="92.6" data-ay="5.2">
+        <span class="ap-num">3</span>
+        <span class="ap-text">Drawer右上角「查看」：跳转实体详情页（F02a）</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="68.0" data-ay="12.5">
+        <span class="ap-num">4</span>
+        <span class="ap-text">Drawer新增4个Tab：基本信息/出资人/所投项目/修改记录</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="59.3" data-ay="20.0">
+        <span class="ap-num">5</span>
+        <span class="ap-text">操作列从「图标」改为文字「删除」（仅解除关联，不删实体）</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f03"></svg>
   </div>
 
-  <!-- ===== F03A F03a Drawer·出资人 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f03a">
-    <img src="frames/F03a-drawer-investor.png?v=1" alt="F03a Drawer·出资人">
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.2%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:26.0%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:14.4%;top:7.2%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:5.0%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人1" onclick="goto('f09')" style="left:93.1%;top:21.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除出资人1" onclick="goto('f07')" style="left:95.4%;top:21.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人2" onclick="goto('f09')" style="left:93.1%;top:24.8%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除出资人2" onclick="goto('f07')" style="left:95.4%;top:24.8%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人3" onclick="goto('f09')" style="left:93.1%;top:28.5%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除出资人3" onclick="goto('f07')" style="left:95.4%;top:28.5%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="编辑出资人4" onclick="goto('f09')" style="left:93.1%;top:32.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="删除出资人4" onclick="goto('f07')" style="left:95.4%;top:32.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体1" onclick="goto('f03a')" style="left:14.4%;top:15.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联1" onclick="goto('f08')" style="left:58.6%;top:15.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:16.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体2" onclick="goto('f03a')" style="left:14.4%;top:19.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联2" onclick="goto('f08')" style="left:58.6%;top:19.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:20.0%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体3" onclick="goto('f03a')" style="left:14.4%;top:23.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联3" onclick="goto('f08')" style="left:58.6%;top:23.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:23.8%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体4" onclick="goto('f03a')" style="left:14.4%;top:27.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联4" onclick="goto('f08')" style="left:58.6%;top:27.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:27.6%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体5" onclick="goto('f03a')" style="left:14.4%;top:30.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联5" onclick="goto('f08')" style="left:58.6%;top:30.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:31.3%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体6" onclick="goto('f03a')" style="left:14.4%;top:34.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联6" onclick="goto('f08')" style="left:58.6%;top:34.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:35.1%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体7" onclick="goto('f03a')" style="left:14.4%;top:38.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联7" onclick="goto('f08')" style="left:58.6%;top:38.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:38.9%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体8" onclick="goto('f03a')" style="left:14.4%;top:42.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联8" onclick="goto('f08')" style="left:58.6%;top:42.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:42.7%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体9" onclick="goto('f03a')" style="left:14.4%;top:45.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联9" onclick="goto('f08')" style="left:58.6%;top:45.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:46.4%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体10" onclick="goto('f03a')" style="left:14.4%;top:49.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联10" onclick="goto('f08')" style="left:58.6%;top:49.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:50.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
+  <!-- F03a Drawer·出资人 -->
+  <div class="fc" id="fc-f03a">
+    <div class="frame-wrap fw-960" id="fw-f03a">
+      <img src="frames/F03a-drawer-investor.png" alt="F03a Drawer·出资人">
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:20.1%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.4%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:50.7%;top:11.5%;width:7.6%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')" style="left:93.3%;top:5.4%;width:4.7%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:11.5%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="+ 新增出资人" onclick="goto('f09')" style="left:90.6%;top:19.9%;width:8.6%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人1" onclick="goto('f09')" style="left:93.1%;top:26.9%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除出资人1" onclick="goto('f07')" style="left:95.4%;top:26.9%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人2" onclick="goto('f09')" style="left:93.1%;top:30.3%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除出资人2" onclick="goto('f07')" style="left:95.4%;top:30.3%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人3" onclick="goto('f09')" style="left:93.1%;top:33.8%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除出资人3" onclick="goto('f07')" style="left:95.4%;top:33.8%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="编辑出资人4" onclick="goto('f09')" style="left:93.1%;top:37.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="删除出资人4" onclick="goto('f07')" style="left:95.4%;top:37.2%;width:2.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:19.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:19.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:22.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:22.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:26.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:26.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:29.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:29.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:33.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:33.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:37.0%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:37.0%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:40.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:40.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:44.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:44.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:47.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:47.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03a')" style="left:14.4%;top:51.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="del-text-overlay" style="left:57.8%;top:19.8%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:23.3%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:26.9%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:30.4%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:34.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:37.5%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:41.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:44.6%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:48.1%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:51.7%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="adot adot-new" data-n="1" style="left:73.1%;top:12.5%"></div>
+    <div class="adot adot-moved" data-n="2" style="left:90.6%;top:19.9%"></div>
+    </div>
+  <div class="ap" id="ap-f03a">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="73.1" data-ay="12.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">Drawer Tab：出资人 — 展示该实体下的出资人列表</span>
+      </div>
+      <div class="ap-item ap-moved" data-ax="90.6" data-ay="19.9">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「+新增出资人」从虚拟基金详情迁入，逻辑与F02b一致</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f03a"></svg>
   </div>
 
-  <!-- ===== F03B F03b Drawer·所投项目 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f03b">
-    <img src="frames/F03b-drawer-project.png?v=1" alt="F03b Drawer·所投项目">
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.2%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:26.0%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:14.4%;top:7.2%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:5.0%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:5.0%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体1" onclick="goto('f03b')" style="left:14.4%;top:15.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联1" onclick="goto('f08')" style="left:58.6%;top:15.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:16.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体2" onclick="goto('f03b')" style="left:14.4%;top:19.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联2" onclick="goto('f08')" style="left:58.6%;top:19.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:20.0%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体3" onclick="goto('f03b')" style="left:14.4%;top:23.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联3" onclick="goto('f08')" style="left:58.6%;top:23.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:23.8%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体4" onclick="goto('f03b')" style="left:14.4%;top:27.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联4" onclick="goto('f08')" style="left:58.6%;top:27.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:27.6%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体5" onclick="goto('f03b')" style="left:14.4%;top:30.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联5" onclick="goto('f08')" style="left:58.6%;top:30.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:31.3%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体6" onclick="goto('f03b')" style="left:14.4%;top:34.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联6" onclick="goto('f08')" style="left:58.6%;top:34.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:35.1%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体7" onclick="goto('f03b')" style="left:14.4%;top:38.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联7" onclick="goto('f08')" style="left:58.6%;top:38.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:38.9%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体8" onclick="goto('f03b')" style="left:14.4%;top:42.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联8" onclick="goto('f08')" style="left:58.6%;top:42.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:42.7%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体9" onclick="goto('f03b')" style="left:14.4%;top:45.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联9" onclick="goto('f08')" style="left:58.6%;top:45.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:46.4%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体10" onclick="goto('f03b')" style="left:14.4%;top:49.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联10" onclick="goto('f08')" style="left:58.6%;top:49.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:50.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
+  <!-- F03b Drawer·所投项目 -->
+  <div class="fc" id="fc-f03b">
+    <div class="frame-wrap fw-960" id="fw-f03b">
+      <img src="frames/F03b-drawer-project.png" alt="F03b Drawer·所投项目">
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:20.1%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.4%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="+ 关联基金" onclick="goto('f04')" style="left:50.7%;top:11.5%;width:7.6%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')" style="left:92.4%;top:5.4%;width:4.7%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:11.5%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:11.5%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 修改记录" onclick="goto('f03c')" style="left:81.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:19.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:19.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:22.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:22.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:26.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:26.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:29.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:29.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:33.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:33.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:37.0%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:37.0%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:40.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:40.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:44.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:44.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:47.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:47.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实体" onclick="goto('f03b')" style="left:14.4%;top:51.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="del-text-overlay" style="left:57.8%;top:19.8%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:23.3%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:26.9%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:30.4%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:34.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:37.5%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:41.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:44.6%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:48.1%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:51.7%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="adot adot-new" data-n="1" style="left:77.2%;top:12.5%"></div>
+    </div>
+  <div class="ap" id="ap-f03b">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="77.2" data-ay="12.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">Drawer Tab：所投项目（只读）—— 数据来自投资轨迹</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f03b"></svg>
   </div>
 
-  <!-- ===== F03C F03c Drawer·修改记录 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f03c">
-    <img src="frames/F03c-drawer-history.png?v=1" alt="F03c Drawer·修改记录">
-    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.2%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:26.0%;width:13.1%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:5.0%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:5.0%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="Drawer Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:5.0%;width:4.2%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看详情1" onclick="goto('f02d')" style="left:93.3%;top:14.1%;width:4.0%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看详情2" onclick="goto('f02d')" style="left:93.3%;top:20.2%;width:4.0%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="查看详情3" onclick="goto('f02d')" style="left:93.3%;top:28.5%;width:4.0%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="切换查看实体1" onclick="goto('f03c')" style="left:14.4%;top:15.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联1" onclick="goto('f08')" style="left:58.6%;top:15.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:16.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体2" onclick="goto('f03c')" style="left:14.4%;top:19.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联2" onclick="goto('f08')" style="left:58.6%;top:19.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:20.0%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体3" onclick="goto('f03c')" style="left:14.4%;top:23.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联3" onclick="goto('f08')" style="left:58.6%;top:23.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:23.8%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体4" onclick="goto('f03c')" style="left:14.4%;top:27.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联4" onclick="goto('f08')" style="left:58.6%;top:27.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:27.6%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体5" onclick="goto('f03c')" style="left:14.4%;top:30.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联5" onclick="goto('f08')" style="left:58.6%;top:30.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:31.3%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体6" onclick="goto('f03c')" style="left:14.4%;top:34.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联6" onclick="goto('f08')" style="left:58.6%;top:34.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:35.1%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体7" onclick="goto('f03c')" style="left:14.4%;top:38.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联7" onclick="goto('f08')" style="left:58.6%;top:38.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:38.9%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体8" onclick="goto('f03c')" style="left:14.4%;top:42.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联8" onclick="goto('f08')" style="left:58.6%;top:42.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:42.7%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体9" onclick="goto('f03c')" style="left:14.4%;top:45.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联9" onclick="goto('f08')" style="left:58.6%;top:45.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:46.4%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
-    <div class="hs" data-tip="切换查看实体10" onclick="goto('f03c')" style="left:14.4%;top:49.7%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="解除关联10" onclick="goto('f08')" style="left:58.6%;top:49.7%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="del-text-overlay" style="left:58.0%;top:50.2%;width:3.0%;height:3.3%;"><a onclick="goto('f08')">删除</a></div>
+  <!-- F03c Drawer·修改记录 -->
+  <div class="fc" id="fc-f03c">
+    <div class="frame-wrap fw-960" id="fw-f03c">
+      <img src="frames/F03c-drawer-history.png" alt="F03c Drawer·修改记录">
+    <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:20.1%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:24.4%;width:13.1%;height:3.75%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금列表" onclick="goto('f00')" style="left:19.8%;top:1.8%;width:3.3%;height:1.9%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="+ 关联基금" onclick="goto('f04')" style="left:50.7%;top:11.5%;width:7.6%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="查看实体详情" onclick="goto('f02a')" style="left:92.5%;top:5.4%;width:4.7%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 基本信息" onclick="goto('f03')" style="left:67.0%;top:11.5%;width:4.0%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 出资人" onclick="goto('f03a')" style="left:72.0%;top:11.5%;width:3.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="Tab: 所投项目" onclick="goto('f03b')" style="left:76.5%;top:11.5%;width:4.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:19.3%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:19.3%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:22.8%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:22.8%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:26.4%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:26.4%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:29.9%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:29.9%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:33.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:33.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:37.0%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:37.0%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:40.5%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:40.5%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:44.1%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:44.1%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:47.6%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:47.6%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="切换实체" onclick="goto('f03c')" style="left:14.4%;top:51.2%;width:44.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="解除关联" onclick="goto('f08')" style="left:58.6%;top:51.2%;width:2.6%;height:3.8%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="del-text-overlay" style="left:57.8%;top:19.8%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:23.3%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:26.9%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:30.4%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:34.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:37.5%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:41.0%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:44.6%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:48.1%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="del-text-overlay" style="left:57.8%;top:51.7%;width:3.5%;height:3.8%;"><a onclick="goto('f08')">删除</a></div>
+    <div class="adot adot-new" data-n="1" style="left:82.2%;top:12.5%"></div>
+    </div>
+  <div class="ap" id="ap-f03c">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="82.2" data-ay="12.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">Drawer Tab：修改记录 —— 记录实体字段变更历史</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f03c"></svg>
   </div>
 
-  <!-- ===== F04 F04 关联基金弹窗 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f04">
-    <img src="frames/F04-associate-fund-modal.png?v=2" alt="F04 关联基金弹窗">
-    <div class="hs" data-tip="确认关联" onclick="goto('f03')" style="left:71.5%;top:75.6%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:65.1%;top:75.6%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="关闭 ✕" onclick="goto('f03')" style="left:74.5%;top:21.0%;width:2.5%;height:3.5%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:24.0%;top:19.5%;"><span class="prd-tag" style="--c:#fa8c16">原「添加基金」弹窗；新增多选和已关联置灰功能</span></div>
+  <!-- F04 关联基金弹窗 -->
+  <div class="fc" id="fc-f04">
+    <div class="frame-wrap fw-900" id="fw-f04">
+      <img src="frames/F04-associate-fund-modal.png" alt="F04 关联基金弹窗">
+    <div class="hs" data-tip="确认关联" onclick="goto('f03')" style="left:71.5%;top:75.9%;width:6.7%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:64.6%;top:75.9%;width:5.0%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="关闭 ✕" onclick="goto('f03')" style="left:74.0%;top:20.5%;width:2.5%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-changed" data-n="1" style="left:40.0%;top:22.0%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:71.5%;top:75.9%"></div>
+    </div>
+  <div class="ap" id="ap-f04">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-changed" data-ax="40.0" data-ay="22.0">
+        <span class="ap-num">1</span>
+        <span class="ap-text">原「添加基金」弹窗 → 「关联基金」，支持多选，已关联行置灰</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="71.5" data-ay="75.9">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「确认关联」提交后，实体出现在该虚拟基金的实体列表中</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f04"></svg>
   </div>
 
-  <!-- ===== F05 F05 新建实体表单 ===== -->
-  <div class="frame-wrap fw-1100" id="fw-f05">
-    <img src="frames/F05-new-entity-form.png?v=2" alt="F05 新建实体表单">
+  <!-- F05 新建实体表单 -->
+  <div class="fc" id="fc-f05">
+    <div class="frame-wrap fw-1100" id="fw-f05">
+      <img src="frames/F05-new-entity-form.png" alt="F05 新建实体表单">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.5%;width:13.1%;height:3.3%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:20.5%;width:13.1%;height:3.3%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금실体" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="保存" onclick="goto('f01')" style="left:87.0%;top:94.6%;width:4.2%;height:2.9%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:82.6%;top:94.6%;width:3.3%;height:2.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:15.0%;top:4.5%;"><span class="prd-tag" style="--c:#52c41a">新增独立页面；字段与「基本信息」Tab 一致；保存后跳转 F02a</span></div>
+    <div class="adot adot-new" data-n="1" style="left:25.0%;top:1.5%"></div>
+    <div class="adot adot-new" data-n="2" style="left:87.0%;top:94.6%"></div>
+    </div>
+  <div class="ap" id="ap-f05">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="25.0" data-ay="1.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增独立创建页面，入口：F01 右上角「+新建实体」</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="87.0" data-ay="94.6">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「保存」校验通过后跳转F02a；「取消」返回列表页不保存</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f05"></svg>
   </div>
 
-  <!-- ===== F06 F06 编辑实体页面 ===== -->
-  <div class="frame-wrap fw-1100" id="fw-f06">
-    <img src="frames/F06-edit-entity-form.png?v=2" alt="F06 编辑实体页面">
+  <!-- F06 编辑实体页面 -->
+  <div class="fc" id="fc-f06">
+    <div class="frame-wrap fw-1100" id="fw-f06">
+      <img src="frames/F06-edit-entity-form.png" alt="F06 编辑实体页面">
     <div class="hs" data-tip="基金列表" onclick="goto('f00')" style="left:0%;top:17.5%;width:13.1%;height:3.3%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="基金实体" onclick="goto('f01')" style="left:0%;top:20.5%;width:13.1%;height:3.3%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="返回 基金实体" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="返回 基금실体" onclick="goto('f01')" style="left:19.8%;top:1.5%;width:3.3%;height:1.5%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="保存" onclick="goto('f02a')" style="left:87.0%;top:94.6%;width:4.2%;height:2.9%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="取消" onclick="goto('f02a')" style="left:82.6%;top:94.6%;width:3.3%;height:2.9%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:15.0%;top:4.5%;"><span class="prd-tag" style="--c:#fa8c16">从虚拟基金详情迁出；保存后自动在 F02d 追加修改记录</span></div>
+    <div class="adot adot-moved" data-n="1" style="left:28.1%;top:1.5%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:87.0%;top:94.6%"></div>
+    </div>
+  <div class="ap" id="ap-f06">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-moved" data-ax="28.1" data-ay="1.5">
+        <span class="ap-num">1</span>
+        <span class="ap-text">编辑页从虚拟基金详情迁出，现为独立页面</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="87.0" data-ay="94.6">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「保存」后自动在 F02d 追加一条修改记录</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f06"></svg>
   </div>
 
-  <!-- ===== F07 F07 删除确认弹窗 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f07">
-    <img src="frames/F07-delete-confirm-modal.png?v=2" alt="F07 删除确认弹窗">
-    <div class="hs" data-tip="确定删除" onclick="goto('f01')" style="left:65.2%;top:60.0%;width:4.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:59.5%;top:60.0%;width:4.0%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="关闭 ✕" onclick="goto('f01')" style="left:63.0%;top:34.5%;width:2.0%;height:2.8%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:32.0%;top:34.0%;"><span class="prd-tag" style="--c:#ff4d4f">前置校验：若实体已关联虚拟基金，则不允许删除</span></div>
+  <!-- F07 删除确认弹窗 -->
+  <div class="fc" id="fc-f07">
+    <div class="frame-wrap fw-900" id="fw-f07">
+      <img src="frames/F07-delete-confirm-modal.png" alt="F07 删除确认弹窗">
+    <div class="hs" data-tip="确定删除" onclick="goto('f01')" style="left:64.0%;top:61.0%;width:4.7%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:57.5%;top:61.0%;width:4.0%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="关闭 ✕" onclick="goto('f01')" style="left:62.5%;top:34.0%;width:2.0%;height:2.5%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-changed" data-n="1" style="left:33.3%;top:37.0%"></div>
+    <div class="adot adot-changed" data-n="2" style="left:64.0%;top:61.0%"></div>
+    </div>
+  <div class="ap" id="ap-f07">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-changed" data-ax="33.3" data-ay="37.0">
+        <span class="ap-num">1</span>
+        <span class="ap-text">前置校验：若实体已关联虚拟基金，则不允许删除，需先解除</span>
+      </div>
+      <div class="ap-item ap-changed" data-ax="64.0" data-ay="61.0">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「确定删除」需填写原因(必填)；删除后数据不可恢复</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f07"></svg>
   </div>
 
-  <!-- ===== F08 F08 解除关联确认弹窗 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f08">
-    <img src="frames/F08-unlink-confirm-modal.png?v=2" alt="F08 解除关联确认弹窗">
-    <div class="hs" data-tip="确认解除" onclick="goto('f03')" style="left:56.9%;top:57.6%;width:6.2%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:50.4%;top:57.8%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:38.0%;top:44.5%;"><span class="prd-tag" style="--c:#fa8c16">仅解除关联关系，不删除实体本身</span></div>
+  <!-- F08 解除关联确认弹窗 -->
+  <div class="fc" id="fc-f08">
+    <div class="frame-wrap fw-900" id="fw-f08">
+      <img src="frames/F08-unlink-confirm-modal.png" alt="F08 解除关联确认弹窗">
+    <div class="hs" data-tip="确认解除" onclick="goto('f03')" style="left:57.8%;top:58.6%;width:5.5%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="取消" onclick="goto('f03')" style="left:50.4%;top:58.6%;width:5.0%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="adot adot-new" data-n="1" style="left:38.0%;top:48.0%"></div>
+    <div class="adot adot-new" data-n="2" style="left:57.8%;top:58.6%"></div>
+    </div>
+  <div class="ap" id="ap-f08">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-new" data-ax="38.0" data-ay="48.0">
+        <span class="ap-num">1</span>
+        <span class="ap-text">新增弹窗：解除关联只移除关联关系，实体本身数据不受影响</span>
+      </div>
+      <div class="ap-item ap-new" data-ax="57.8" data-ay="58.6">
+        <span class="ap-num">2</span>
+        <span class="ap-text">「确认解除」不可撤销；解除后实体不再显示在该虚拟基金下</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f08"></svg>
   </div>
 
-  <!-- ===== F09 F09 出资人新增弹窗 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f09">
-    <img src="frames/F09-add-investor-modal.png?v=1" alt="F09 出资人新增弹窗">
-    <div class="hs" data-tip="保存" onclick="goto('f02b')" style="left:77.3%;top:91.8%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="hs" data-tip="取消" onclick="goto('f02b')" style="left:70.9%;top:91.8%;width:5.6%;height:3.6%"><span class="dot" style="left:50%;top:50%"></span></div>
+  <!-- F09 出资人新增弹窗 -->
+  <div class="fc" id="fc-f09">
+    <div class="frame-wrap fw-900" id="fw-f09">
+      <img src="frames/F09-add-investor-modal.png" alt="F09 出资人新增弹窗">
+    <div class="hs" data-tip="保存" onclick="goto('f02b')" style="left:77.2%;top:92.1%;width:4.7%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
+    <div class="hs" data-tip="取消" onclick="goto('f02b')" style="left:70.9%;top:92.1%;width:4.7%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="关闭 ✕" onclick="goto('f02b')" style="left:80.4%;top:4.5%;width:2.0%;height:3.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:18.0%;top:3.0%;"><span class="prd-tag" style="--c:#fa8c16">已有功能；入口从虚拟基金详情迁出，现统一在出资人管理 Tab</span></div>
+    <div class="adot adot-moved" data-n="1" style="left:18.3%;top:5.6%"></div>
+    </div>
+  <div class="ap" id="ap-f09">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-moved" data-ax="18.3" data-ay="5.6">
+        <span class="ap-num">1</span>
+        <span class="ap-text">入口从虚拟基金详情迁出，现在 F02b 出资人管理Tab</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f09"></svg>
   </div>
 
-  <!-- ===== F10 F10 导入弹窗 ===== -->
-  <div class="frame-wrap fw-900" id="fw-f10">
-    <img src="frames/F10-import-modal.png?v=2" alt="F10 导入弹窗">
+  <!-- F10 导入弹窗 -->
+  <div class="fc" id="fc-f10">
+    <div class="frame-wrap fw-900" id="fw-f10">
+      <img src="frames/F10-import-modal.png" alt="F10 导入弹窗">
     <div class="hs" data-tip="确认导入" onclick="goto('f01')" style="left:60.4%;top:61.0%;width:5.6%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
     <div class="hs" data-tip="取消" onclick="goto('f01')" style="left:54.2%;top:61.0%;width:4.2%;height:4.0%"><span class="dot" style="left:50%;top:50%"></span></div>
-    <div class="prd-badge" style="left:34.0%;top:32.5%;"><span class="prd-tag" style="--c:#fa8c16">从虚拟基金详情迁出；支持实体基金和出资人两种 Excel 导入</span></div>
+    <div class="adot adot-moved" data-n="1" style="left:34.3%;top:35.3%"></div>
+    </div>
+  <div class="ap" id="ap-f10">
+    <div class="ap-hd">📋 变更说明</div>
+      <div class="ap-item ap-moved" data-ax="34.3" data-ay="35.3">
+        <span class="ap-num">1</span>
+        <span class="ap-text">导入弹窗从虚拟基金详情迁出；支持实体基金和出资人两种模板</span>
+      </div>
+  </div>
+    <svg class="ap-svg" id="sv-f10"></svg>
   </div>
 
 </div>
 
+<!-- 缩放 -->
 <div id="zoom-ctrl">
   <button class="z-btn" onclick="zoom(-0.1)">−</button>
   <div id="zoom-label">100%</div>
   <button class="z-btn" onclick="zoom(+0.1)">+</button>
 </div>
+
+<!-- 姓名设置 -->
+<div id="name-dialog">
+  <div class="nd-box">
+    <h2>👋 你是谁？</h2>
+    <p>输入你的名字，之后所有评论都会用这个名字，无需重复填写。</p>
+    <input id="name-input" type="text" placeholder="输入你的名字" maxlength="30" autocomplete="off">
+    <button class="nd-btn" onclick="confirmName()">开始评论 →</button>
+  </div>
+</div>
+
+<!-- 评论输入弹窗 -->
+<div id="comment-popup">
+  <div class="cp-author-row">
+    <span class="cp-as">Commenting as </span>
+    <span class="cp-name" id="cp-author-name"></span>
+    <button class="cp-change" onclick="openNameDialog()">· change</button>
+  </div>
+  <textarea id="comment-text" placeholder="写下你的意见…"></textarea>
+  <div class="cp-btns">
+    <span class="cp-shortcut">⌘+Enter 提交</span>
+    <button class="cp-btn-cancel" onclick="closeCommentPopup()">取消</button>
+    <button class="cp-btn-submit" id="cp-submit" onclick="submitComment()">Submit</button>
+  </div>
+</div>
+
+<!-- 线程弹窗 -->
+<div id="thread-popup">
+  <div class="tp-header">
+    <span class="tp-header-title">💬 Comments · <b id="tp-count">0</b></span>
+    <button class="tp-close" onclick="closeThreadPopup()">✕</button>
+  </div>
+  <div class="tp-body" id="tp-body"><div class="tp-empty">Loading…</div></div>
+  <div class="tp-footer">
+    <button class="tp-plusone-btn" id="tp-plusone" onclick="submitPlusOne()">👍 +1</button>
+    <div class="tp-reply-row">
+      <textarea class="tp-reply-input" id="tp-reply-input" placeholder="补充评论…" rows="1"></textarea>
+      <button class="tp-reply-btn" onclick="submitReply()">Reply</button>
+    </div>
+  </div>
+</div>
+
+<div id="comment-toast"></div>
 
 <script>
 let currentFrame = 'f00';
@@ -767,76 +963,150 @@ let navOpen = false;
 let scale = 1;
 
 const frames = {
-  f00: { id:'f00', title:'F00 · 虚拟基金列表' },
-  f01: { id:'f01', title:'F01 · 基金实体列表页' },
-  f02a: { id:'f02a', title:'F02a · 实体详情·基本信息' },
-  f02b: { id:'f02b', title:'F02b · 实体详情·出资人管理' },
-  f02c: { id:'f02c', title:'F02c · 实体详情·投资项目' },
-  f02d: { id:'f02d', title:'F02d · 实体详情·修改记录' },
-  f03: { id:'f03', title:'F03 · 虚拟基金详情+Drawer' },
-  f03a: { id:'f03a', title:'F03a · Drawer·出资人' },
-  f03b: { id:'f03b', title:'F03b · Drawer·所投项目' },
-  f03c: { id:'f03c', title:'F03c · Drawer·修改记录' },
-  f04: { id:'f04', title:'F04 · 关联基金弹窗' },
-  f05: { id:'f05', title:'F05 · 新建实体表单' },
-  f06: { id:'f06', title:'F06 · 编辑实体页面' },
-  f07: { id:'f07', title:'F07 · 删除确认弹窗' },
-  f08: { id:'f08', title:'F08 · 解除关联确认' },
-  f09: { id:'f09', title:'F09 · 出资人新增弹窗' },
-  f10: { id:'f10', title:'F10 · 导入弹窗' },
+  f00: {id:'f00',title:'F00 虚拟基金列表'},
+  f01: {id:'f01',title:'F01 基金实体列表页'},
+  f02a: {id:'f02a',title:'F02a 实体详情·基本信息'},
+  f02b: {id:'f02b',title:'F02b 实体详情·出资人管理'},
+  f02c: {id:'f02c',title:'F02c 实体详情·投资项目'},
+  f02d: {id:'f02d',title:'F02d 实体详情·修改记录'},
+  f03: {id:'f03',title:'F03 虚拟基金详情+Drawer'},
+  f03a: {id:'f03a',title:'F03a Drawer·出资人'},
+  f03b: {id:'f03b',title:'F03b Drawer·所投项目'},
+  f03c: {id:'f03c',title:'F03c Drawer·修改记录'},
+  f04: {id:'f04',title:'F04 关联基金弹窗'},
+  f05: {id:'f05',title:'F05 新建实体表单'},
+  f06: {id:'f06',title:'F06 编辑实体页面'},
+  f07: {id:'f07',title:'F07 删除确认弹窗'},
+  f08: {id:'f08',title:'F08 解除关联确认弹窗'},
+  f09: {id:'f09',title:'F09 出资人新增弹窗'},
+  f10: {id:'f10',title:'F10 导入弹窗'},
 };
 
 function goto(fid) {
-  if (!frames[fid] || fid === currentFrame) return;
+  if (!frames[fid]||fid===currentFrame) return;
   history.push(currentFrame);
-  document.getElementById('fw-' + currentFrame).classList.remove('active');
-  const next = document.getElementById('fw-' + fid);
+  document.getElementById('fw-'+currentFrame).classList.remove('active');
+  const next = document.getElementById('fw-'+fid);
   next.classList.add('active','frame-enter');
-  setTimeout(() => next.classList.remove('frame-enter'), 300);
+  setTimeout(()=>next.classList.remove('frame-enter'),300);
   currentFrame = fid;
   document.getElementById('frame-title').textContent = frames[fid].title;
-  document.querySelectorAll('.nav-item').forEach(el =>
-    el.classList.toggle('active', el.dataset.frame === fid));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.frame===fid));
   closeThreadPopup();
   resetZoom();
   loadFigmaComments(fid);
+  if (document.body.classList.contains('prd-mode')) setTimeout(()=>drawAnnoLines(fid),60);
 }
 
 function goBack() {
   if (!history.length) return;
   const prev = history.pop();
-  document.getElementById('fw-' + currentFrame).classList.remove('active');
-  const el = document.getElementById('fw-' + prev);
+  document.getElementById('fw-'+currentFrame).classList.remove('active');
+  const el = document.getElementById('fw-'+prev);
   el.classList.add('active','frame-enter');
-  setTimeout(() => el.classList.remove('frame-enter'), 300);
+  setTimeout(()=>el.classList.remove('frame-enter'),300);
   currentFrame = prev;
   document.getElementById('frame-title').textContent = frames[prev].title;
-  document.querySelectorAll('.nav-item').forEach(el =>
-    el.classList.toggle('active', el.dataset.frame === prev));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.frame===prev));
   closeThreadPopup();
   resetZoom();
   loadFigmaComments(prev);
+  if (document.body.classList.contains('prd-mode')) setTimeout(()=>drawAnnoLines(prev),60);
 }
 
 function toggleNav() {
   navOpen = !navOpen;
-  document.getElementById('nav-panel').classList.toggle('open', navOpen);
-  document.getElementById('stage').classList.toggle('nav-open', navOpen);
-  document.getElementById('nav-toggle').classList.toggle('active', navOpen);
+  document.getElementById('nav-panel').classList.toggle('open',navOpen);
+  document.getElementById('stage').classList.toggle('nav-open',navOpen);
+  document.getElementById('nav-toggle').classList.toggle('active',navOpen);
 }
 
 function toggleDots() {
   const visible = document.body.classList.toggle('hide-dots');
-  document.getElementById('dot-toggle').classList.toggle('active', !visible);
+  document.getElementById('dot-toggle').classList.toggle('active',!visible);
 }
 
+// ── PRD 标注系统 ─────────────────────────────────────────
+function togglePRD() {
+  const on = document.body.classList.toggle('prd-mode');
+  const btn = document.getElementById('prd-btn');
+  btn.classList.toggle('prd-active', on);
+  btn.textContent = on ? '📋 关闭说明' : '📋 PRD 说明';
+  if (on) setTimeout(()=>drawAnnoLines(currentFrame), 60);
+  else clearAnnoLines();
+}
+
+function drawAnnoLines(fid) {
+  const fc = document.getElementById('fc-'+fid);
+  const fw = document.getElementById('fw-'+fid);
+  const ap = document.getElementById('ap-'+fid);
+  const svg = document.getElementById('sv-'+fid);
+  if (!fc||!fw||!ap||!svg) return;
+
+  const fcR = fc.getBoundingClientRect();
+  const fwR = fw.getBoundingClientRect();
+  svg.style.width  = fcR.width  + 'px';
+  svg.style.height = Math.max(fcR.height, fwR.height) + 'px';
+  svg.innerHTML = '';
+
+  ap.querySelectorAll('.ap-item').forEach(item => {
+    const ax = parseFloat(item.dataset.ax)/100 * fwR.width  + (fwR.left-fcR.left);
+    const ay = parseFloat(item.dataset.ay)/100 * fwR.height + (fwR.top -fcR.top);
+    const iR = item.getBoundingClientRect();
+    const bx = iR.left - fcR.left;
+    const by = iR.top  - fcR.top + iR.height/2;
+    const mx = ax + (bx-ax)*0.55;
+    const col = item.classList.contains('ap-new') ? '#52c41a'
+              : item.classList.contains('ap-moved')? '#1677ff' : '#fa8c16';
+
+    // Bezier 曲线
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', `M ${ax} ${ay} C ${mx} ${ay} ${mx} ${by} ${bx} ${by}`);
+    p.setAttribute('stroke',col); p.setAttribute('stroke-width','1.2');
+    p.setAttribute('fill','none'); p.setAttribute('stroke-dasharray','4 3');
+    p.setAttribute('opacity','0.7');
+    svg.appendChild(p);
+
+    // 箭头
+    const arr = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    arr.setAttribute('points',`${bx},${by} ${bx-7},${by-3} ${bx-7},${by+3}`);
+    arr.setAttribute('fill',col); arr.setAttribute('opacity','0.7');
+    svg.appendChild(arr);
+
+    // 起点圆圈
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',ax); c.setAttribute('cy',ay); c.setAttribute('r','3');
+    c.setAttribute('fill',col); c.setAttribute('opacity','0.85');
+    svg.appendChild(c);
+  });
+}
+
+function clearAnnoLines() {
+  document.querySelectorAll('.ap-svg').forEach(s => s.innerHTML='');
+}
+
+// PRD 条目点击高亮对应锚点
+document.addEventListener('click', e => {
+  const item = e.target.closest('.ap-item');
+  if (!item) return;
+  const panel = item.closest('.ap');
+  if (!panel) return;
+  const fid = panel.id.replace('ap-','');
+  const idx = Array.from(panel.querySelectorAll('.ap-item')).indexOf(item)+1;
+  const dot = document.querySelector('#fw-'+fid+' .adot[data-n="'+idx+'"]');
+  if (dot) {
+    dot.style.transform = 'translate(-50%,-50%) scale(1.8)';
+    setTimeout(()=>dot.style.transform='translate(-50%,-50%) scale(1)',600);
+  }
+});
+
+// ── 缩放 ─────────────────────────────────────────────────
 function getActiveFrameH() {
   const fw = document.querySelector('.frame-wrap.active');
   if (!fw) return 900;
   const m = fw.className.match(/fw-(\d+)/);
   return m ? parseInt(m[1]) : 900;
 }
-
 function zoom(delta) {
   scale = Math.max(0.25, Math.min(2, Math.round((scale+delta)*10)/10));
   applyZoom();
@@ -849,32 +1119,23 @@ function resetZoom() {
 }
 function applyZoom() {
   const w = Math.round(1440*scale);
-  document.querySelectorAll('.frame-wrap').forEach(fw => fw.style.width = w+'px');
+  document.querySelectorAll('.frame-wrap').forEach(fw=>fw.style.width=w+'px');
   document.getElementById('zoom-label').textContent = Math.round(scale*100)+'%';
+  if (document.body.classList.contains('prd-mode'))
+    setTimeout(()=>drawAnnoLines(currentFrame),20);
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key==='Backspace'||e.key==='ArrowLeft') goBack();
-  if (e.key==='='||e.key==='+') zoom(+0.1);
-  if (e.key==='-') zoom(-0.1);
-  if (e.key==='0') resetZoom();
-  if (e.key==='m'||e.key==='M') toggleNav();
-  if (e.key==='h'||e.key==='H') toggleDots();
+document.addEventListener('keydown',e=>{
+  if(e.key==='Backspace'||e.key==='ArrowLeft') goBack();
+  if(e.key==='='||e.key==='+') zoom(+0.1);
+  if(e.key==='-') zoom(-0.1);
+  if(e.key==='0') resetZoom();
+  if(e.key==='m'||e.key==='M') toggleNav();
+  if(e.key==='h'||e.key==='H') toggleDots();
+  if(e.key==='p'||e.key==='P') togglePRD();
+  if(e.key==='Escape'){closeThreadPopup();closeCommentPopup();}
 });
 
-
-// ── PRD 说明模式 ─────────────────────────────────────────
-function togglePRD() {
-  const on = document.body.classList.toggle('prd-mode');
-  const btn = document.getElementById('prd-toggle');
-  btn.classList.toggle('active', on);
-  btn.textContent = on ? '📋 隐藏说明' : '📋 PRD 说明';
-}
-
-window.addEventListener('load', () => setTimeout(resetZoom, 80));
-window.addEventListener('resize', resetZoom);
-
-// ════════════════════════════════════════════════════════
 // Figma 评论系统 v2：姓名一次设置、Pin 可拖动、线程查看
 // ════════════════════════════════════════════════════════
 const FIGMA_FILE_KEY = 'qCxA7SGLsiD9s3KL4DJCpP';
@@ -1241,6 +1502,9 @@ function togglePRD() {
 window.addEventListener('load', () => {
   setTimeout(() => { resetZoom(); loadFigmaComments('f00'); }, 80);
 });
+
+window.addEventListener('load',()=>setTimeout(()=>{resetZoom();loadFigmaComments('f00');},80));
+window.addEventListener('resize',resetZoom);
 </script>
 </body>
 </html>
