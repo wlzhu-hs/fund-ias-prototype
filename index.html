@@ -127,7 +127,32 @@
     body.comment-mode .dot { display: none !important; }
     .tb-btn.comment-active { background: #FF6B2B !important; color: #fff !important; }
 
-    /* 评论输入弹窗 */
+    /* 姓名设置弹窗（首次使用） */
+    #name-dialog {
+      position:fixed; inset:0; z-index:3000;
+      background:rgba(0,0,0,.75);
+      display:none; align-items:center; justify-content:center;
+    }
+    #name-dialog.show { display:flex; }
+    .nd-box {
+      background:#2d2d2d; border-radius:10px; padding:24px; width:320px;
+      border:1px solid #555; box-shadow:0 16px 48px rgba(0,0,0,.6);
+    }
+    .nd-box h2 { color:#fff; font-size:14px; margin-bottom:6px; }
+    .nd-box p  { color:#aaa; font-size:12px; margin-bottom:14px; line-height:1.5; }
+    #name-input {
+      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
+      padding:9px 12px; border-radius:5px; font-size:13px; margin-bottom:12px;
+      box-sizing:border-box;
+    }
+    #name-input:focus { outline:none; border-color:#FF6B2B; }
+    .nd-btn {
+      width:100%; background:#FF6B2B; color:#fff; border:none; padding:9px;
+      border-radius:5px; cursor:pointer; font-size:13px; font-weight:500;
+    }
+    .nd-btn:hover { background:#e55a20; }
+
+    /* 新评论输入弹窗 */
     #comment-popup {
       position:fixed; z-index:2000;
       background:#2d2d2d; border:1px solid #555; border-radius:8px;
@@ -135,21 +160,17 @@
       display:none; box-shadow:0 8px 28px rgba(0,0,0,.6);
     }
     #comment-popup.show { display:block; }
-    #comment-popup .cp-frame-hint {
-      color:#888; font-size:10px; margin-bottom:8px;
-      padding-bottom:6px; border-bottom:1px solid #3a3a3a;
+    .cp-author-row {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;
     }
-    #comment-popup .cp-frame-hint span { color:#FF6B2B; }
-    #comment-name {
-      width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
-      padding:7px 10px; border-radius:4px; font-size:12px; margin-bottom:6px;
-      font-family:-apple-system,sans-serif; box-sizing:border-box;
-    }
-    #comment-name:focus { outline:none; border-color:#6fb3ff; }
+    .cp-author-row .cp-as { color:#888; font-size:10px; }
+    .cp-author-row .cp-name { color:#FF6B2B; font-size:10px; font-weight:500; }
+    .cp-author-row .cp-change { color:#6fb3ff; font-size:10px; background:none; border:none; cursor:pointer; padding:0; }
     #comment-text {
       width:100%; background:#1a1a1a; border:1px solid #555; color:#eee;
       padding:8px; border-radius:4px; font-size:12px; resize:none;
-      height:70px; font-family:-apple-system,sans-serif; margin-bottom:8px;
+      height:72px; font-family:-apple-system,sans-serif; margin-bottom:8px;
       box-sizing:border-box;
     }
     #comment-text:focus { outline:none; border-color:#FF6B2B; }
@@ -159,20 +180,74 @@
     .cp-btn-submit { background:#FF6B2B; color:#fff; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:500; }
     .cp-btn-submit:disabled { opacity:.45; cursor:not-allowed; }
 
-    /* 本地 Pin 标记 */
+    /* Pin 标记（可拖动、可点击） */
     .c-pin {
-      position:absolute; z-index:15; pointer-events:none;
-      width:20px; height:20px; border-radius:50% 50% 50% 0;
+      position:absolute; z-index:15;
+      width:24px; height:24px; border-radius:50% 50% 50% 0;
       background:#FF5722; transform:rotate(-45deg);
-      box-shadow:0 2px 6px rgba(0,0,0,.5);
+      box-shadow:0 2px 8px rgba(0,0,0,.5);
+      cursor:pointer; user-select:none;
+      transition:box-shadow .15s;
     }
+    .c-pin:hover { background:#e64919; box-shadow:0 4px 14px rgba(0,0,0,.6); }
+    .c-pin.dragging { opacity:.8; cursor:grabbing !important; z-index:999; }
     .c-pin::after {
       content:attr(data-n);
       position:absolute; inset:0; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
       transform:rotate(45deg);
       color:#fff; font-size:9px; font-weight:700;
+      pointer-events:none;
     }
+
+    /* 评论线程弹窗（点击 Pin 查看） */
+    #thread-popup {
+      position:fixed; z-index:2500;
+      background:#2d2d2d; border:1px solid #555; border-radius:8px;
+      width:320px; max-height:460px;
+      display:none; flex-direction:column;
+      box-shadow:0 8px 28px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    #thread-popup.show { display:flex; }
+    .tp-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; border-bottom:1px solid #3a3a3a; flex-shrink:0;
+    }
+    .tp-header-title { color:#aaa; font-size:11px; }
+    .tp-header-title b { color:#FF6B2B; }
+    .tp-close { background:none; border:none; color:#777; cursor:pointer; font-size:15px; line-height:1; }
+    .tp-close:hover { color:#eee; }
+    .tp-body { flex:1; overflow-y:auto; padding:10px 12px; }
+    .tp-empty { color:#666; font-size:12px; text-align:center; padding:20px 0; }
+    .tp-item { margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #333; }
+    .tp-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .tp-meta { display:flex; justify-content:space-between; margin-bottom:4px; }
+    .tp-author { color:#FF6B2B; font-size:11px; font-weight:500; }
+    .tp-time   { color:#555; font-size:10px; }
+    .tp-msg    { color:#ddd; font-size:12px; line-height:1.55; word-break:break-word; }
+    .tp-msg.is-plusone { color:#888; font-size:11px; }
+    .tp-footer { padding:10px 12px; border-top:1px solid #3a3a3a; flex-shrink:0; }
+    .tp-plusone-btn {
+      background:#3a3a3a; color:#bbb; border:none; padding:4px 10px;
+      border-radius:4px; cursor:pointer; font-size:11px; margin-bottom:8px;
+      transition:background .12s;
+    }
+    .tp-plusone-btn:hover { background:#4a4a4a; color:#fff; }
+    .tp-reply-row { display:flex; gap:6px; align-items:flex-end; }
+    .tp-reply-input {
+      flex:1; background:#1a1a1a; border:1px solid #555; color:#eee;
+      padding:6px 8px; border-radius:4px; font-size:11px; resize:none;
+      height:28px; font-family:-apple-system,sans-serif; box-sizing:border-box;
+      transition:height .15s, border-color .12s;
+    }
+    .tp-reply-input:focus { outline:none; border-color:#FF6B2B; height:52px; }
+    .tp-reply-btn {
+      background:#555; color:#fff; border:none; padding:5px 10px;
+      border-radius:4px; cursor:pointer; font-size:11px; white-space:nowrap;
+      align-self:flex-end;
+    }
+    .tp-reply-btn:hover { background:#FF6B2B; }
 
     /* Toast 提示 */
     #comment-toast {
@@ -203,15 +278,46 @@
   </div>
 </div>
 
-<!-- 评论输入弹窗（匿名，无需 Figma 账号） -->
+<!-- 姓名设置弹窗（首次点 Comment 时出现） -->
+<div id="name-dialog">
+  <div class="nd-box">
+    <h2>👋 你是谁？</h2>
+    <p>输入你的名字，之后所有评论都会用这个名字，无需重复填写。</p>
+    <input id="name-input" type="text" placeholder="输入你的名字" maxlength="30" autocomplete="off">
+    <button class="nd-btn" onclick="confirmName()">开始评论 →</button>
+  </div>
+</div>
+
+<!-- 新评论输入弹窗 -->
 <div id="comment-popup">
-  <div class="cp-frame-hint">📍 <span id="cp-frame-name"></span></div>
-  <input id="comment-name" type="text" placeholder="你的名字（必填）" maxlength="30">
+  <div class="cp-author-row">
+    <span class="cp-as">Commenting as </span>
+    <span class="cp-name" id="cp-author-name"></span>
+    <button class="cp-change" onclick="openNameDialog()">· change</button>
+  </div>
   <textarea id="comment-text" placeholder="写下你的意见…"></textarea>
   <div class="cp-btns">
     <span class="cp-shortcut">⌘+Enter 提交</span>
     <button class="cp-btn-cancel" onclick="closeCommentPopup()">取消</button>
     <button class="cp-btn-submit" id="cp-submit" onclick="submitComment()">Submit</button>
+  </div>
+</div>
+
+<!-- 评论线程弹窗（点击 Pin 查看） -->
+<div id="thread-popup">
+  <div class="tp-header">
+    <span class="tp-header-title">💬 Comments · <b id="tp-count">0</b></span>
+    <button class="tp-close" onclick="closeThreadPopup()">✕</button>
+  </div>
+  <div class="tp-body" id="tp-body">
+    <div class="tp-empty">Loading…</div>
+  </div>
+  <div class="tp-footer">
+    <button class="tp-plusone-btn" id="tp-plusone" onclick="submitPlusOne()">👍 +1</button>
+    <div class="tp-reply-row">
+      <textarea class="tp-reply-input" id="tp-reply-input" placeholder="补充评论…" rows="1"></textarea>
+      <button class="tp-reply-btn" onclick="submitReply()">Reply</button>
+    </div>
   </div>
 </div>
 
@@ -511,7 +617,9 @@ function goto(fid) {
   document.getElementById('frame-title').textContent = frames[fid].title;
   document.querySelectorAll('.nav-item').forEach(el =>
     el.classList.toggle('active', el.dataset.frame === fid));
+  closeThreadPopup();
   resetZoom();
+  loadFigmaComments(fid);
 }
 
 function goBack() {
@@ -525,7 +633,9 @@ function goBack() {
   document.getElementById('frame-title').textContent = frames[prev].title;
   document.querySelectorAll('.nav-item').forEach(el =>
     el.classList.toggle('active', el.dataset.frame === prev));
+  closeThreadPopup();
   resetZoom();
+  loadFigmaComments(prev);
 }
 
 function toggleNav() {
@@ -576,182 +686,363 @@ window.addEventListener('load', () => setTimeout(resetZoom, 80));
 window.addEventListener('resize', resetZoom);
 
 // ════════════════════════════════════════════════════════
-// Figma 评论写回功能
+// Figma 评论系统 v2：姓名一次设置、Pin 可拖动、线程查看
 // ════════════════════════════════════════════════════════
 const FIGMA_FILE_KEY = 'qCxA7SGLsiD9s3KL4DJCpP';
-// 统一服务 Token（评论内容中含评论者姓名，无需 Figma 账号）
 const FIGMA_SVC_TOKEN = atob('ZmlnZF9vb2cxTzItcko2Ul9SYnpSeVZJS2t3S3NFMXBIZTFSenowaXI1c3JM');
-
-// 交互稿帧 ID → Figma node ID + 原始尺寸
 const FIGMA_NODES = {
-  f00:  { nodeId:'8133:86',   w:1440, h:900  },
-  f01:  { nodeId:'8103:92',   w:1440, h:900  },
-  f02a: { nodeId:'8103:313',  w:1440, h:960  },
-  f02b: { nodeId:'8103:457',  w:1440, h:900  },
-  f02c: { nodeId:'8103:560',  w:1440, h:900  },
-  f02d: { nodeId:'8103:751',  w:1440, h:900  },
-  f03:  { nodeId:'8103:867',  w:1440, h:900  },
-  f03a: { nodeId:'8180:1109', w:1440, h:900  },
-  f03b: { nodeId:'8180:1447', w:1440, h:900  },
-  f03c: { nodeId:'8180:1786', w:1440, h:900  },
-  f04:  { nodeId:'8103:1063', w:1440, h:900  },
-  f05:  { nodeId:'8103:1194', w:1440, h:1100 },
-  f06:  { nodeId:'8103:1328', w:1440, h:1100 },
-  f07:  { nodeId:'8103:1462', w:1440, h:900  },
-  f08:  { nodeId:'8103:1480', w:1440, h:900  },
-  f09:  { nodeId:'8103:1500', w:1440, h:900  },
-  f10:  { nodeId:'8103:1531', w:1440, h:900  },
+  f00:{nodeId:'8133:86',w:1440,h:900}, f01:{nodeId:'8103:92',w:1440,h:900},
+  f02a:{nodeId:'8103:313',w:1440,h:960}, f02b:{nodeId:'8103:457',w:1440,h:900},
+  f02c:{nodeId:'8103:560',w:1440,h:900}, f02d:{nodeId:'8103:751',w:1440,h:900},
+  f03:{nodeId:'8103:867',w:1440,h:900}, f03a:{nodeId:'8180:1109',w:1440,h:900},
+  f03b:{nodeId:'8180:1447',w:1440,h:900}, f03c:{nodeId:'8180:1786',w:1440,h:900},
+  f04:{nodeId:'8103:1063',w:1440,h:900}, f05:{nodeId:'8103:1194',w:1440,h:1100},
+  f06:{nodeId:'8103:1328',w:1440,h:1100}, f07:{nodeId:'8103:1462',w:1440,h:900},
+  f08:{nodeId:'8103:1480',w:1440,h:900}, f09:{nodeId:'8103:1500',w:1440,h:900},
+  f10:{nodeId:'8103:1531',w:1440,h:900},
 };
 
 let commentMode = false;
-let pendingClick = null;   // { xPct, yPct, clientX, clientY }
-let localPinCount = 0;
+let pendingClick = null;
+let allFigmaComments = [];   // 缓存所有评论
+let activeRootId = null;     // 当前线程 popup 的根评论 ID
+let pinCount = 0;
 
-// 记住上次用的名字
-function getSavedName() { return localStorage.getItem('comment_name') || ''; }
-function saveName(n)    { if (n) localStorage.setItem('comment_name', n); }
+// ── 姓名管理 ─────────────────────────────────────────────
+const getSavedName = () => localStorage.getItem('comment_name') || '';
+const setSavedName = n => { if (n) localStorage.setItem('comment_name', n); };
+
+function openNameDialog() {
+  document.getElementById('name-input').value = getSavedName();
+  document.getElementById('name-dialog').classList.add('show');
+  setTimeout(() => document.getElementById('name-input').focus(), 80);
+}
+function confirmName() {
+  const n = document.getElementById('name-input').value.trim();
+  if (!n) { document.getElementById('name-input').focus(); return; }
+  setSavedName(n);
+  document.getElementById('name-dialog').classList.remove('show');
+  // 如果是因为进评论模式触发的，继续进入评论模式
+  if (!commentMode) { enterCommentMode(); }
+}
+document.getElementById('name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmName();
+  if (e.key === 'Escape') document.getElementById('name-dialog').classList.remove('show');
+});
 
 // ── 评论模式开关 ─────────────────────────────────────────
 function toggleCommentMode() {
-  commentMode = !commentMode;
-  document.body.classList.toggle('comment-mode', commentMode);
+  if (!commentMode) {
+    if (!getSavedName()) { openNameDialog(); return; }
+    enterCommentMode();
+  } else {
+    exitCommentMode();
+  }
+}
+function enterCommentMode() {
+  commentMode = true;
+  document.body.classList.add('comment-mode');
   const btn = document.getElementById('comment-toggle');
-  btn.classList.toggle('comment-active', commentMode);
-  btn.textContent = commentMode ? '✕ Exit Comment' : '💬 Comment';
-  if (!commentMode) closeCommentPopup();
+  btn.classList.add('comment-active');
+  btn.textContent = '✕ Exit Comment';
+}
+function exitCommentMode() {
+  commentMode = false;
+  document.body.classList.remove('comment-mode');
+  const btn = document.getElementById('comment-toggle');
+  btn.classList.remove('comment-active');
+  btn.textContent = '💬 Comment';
+  closeCommentPopup();
 }
 
-// ── 捕获点击 ─────────────────────────────────────────────
+// ── 捕获帧点击（新评论） ─────────────────────────────────
 document.addEventListener('click', e => {
+  // 点 Pin：任何模式下都打开线程
+  const pin = e.target.closest('.c-pin');
+  if (pin && !dragState?.moved) { e.preventDefault(); e.stopPropagation(); openThreadPopup(pin, e); return; }
+
   if (!commentMode) return;
-  if (e.target.closest('#toolbar, #comment-popup, #nav-panel, #zoom-ctrl')) return;
+  if (e.target.closest('#toolbar,#comment-popup,#name-dialog,#thread-popup,#nav-panel,#zoom-ctrl')) return;
 
   const fw = document.querySelector('.frame-wrap.active');
   if (!fw || !fw.contains(e.target)) return;
-  if (e.target.closest('.c-pin')) return;
 
   e.preventDefault(); e.stopPropagation();
 
   const rect = fw.getBoundingClientRect();
-  const xPct = (e.clientX - rect.left) / rect.width * 100;
-  const yPct = (e.clientY - rect.top)  / rect.height * 100;
-
-  pendingClick = { xPct, yPct, clientX: e.clientX, clientY: e.clientY };
+  pendingClick = {
+    xPct: (e.clientX - rect.left) / rect.width * 100,
+    yPct: (e.clientY - rect.top)  / rect.height * 100,
+    clientX: e.clientX, clientY: e.clientY
+  };
   showCommentPopup(e.clientX, e.clientY);
 }, true);
 
-// ── 显示评论输入框 ───────────────────────────────────────
-function showCommentPopup(clientX, clientY) {
+// ── 新评论弹窗 ───────────────────────────────────────────
+function showCommentPopup(cx, cy) {
+  document.getElementById('cp-author-name').textContent = getSavedName();
   const popup = document.getElementById('comment-popup');
-  document.getElementById('cp-frame-name').textContent = frames[currentFrame]?.title || currentFrame;
   popup.classList.add('show');
-
-  const pw = 300, ph = 168;
-  let left = clientX + 14;
-  let top  = clientY - 24;
-  if (left + pw > window.innerWidth  - 8) left = clientX - pw - 14;
-  if (top  + ph > window.innerHeight - 8) top  = window.innerHeight - ph - 8;
-  popup.style.left = Math.max(8, left) + 'px';
-  popup.style.top  = Math.max(8, top)  + 'px';
-
-  // 还原上次姓名，清空评论
-  document.getElementById('comment-name').value = getSavedName();
+  const pw=300, ph=148;
+  let l = cx+14, t = cy-24;
+  if (l+pw > window.innerWidth-8)  l = cx-pw-14;
+  if (t+ph > window.innerHeight-8) t = window.innerHeight-ph-8;
+  popup.style.left = Math.max(8,l)+'px';
+  popup.style.top  = Math.max(8,t)+'px';
   const ta = document.getElementById('comment-text');
-  ta.value = '';
-  // 有名字就聚焦评论区，没有就聚焦姓名区
-  (getSavedName() ? ta : document.getElementById('comment-name')).focus();
-  document.getElementById('cp-submit').disabled = false;
-  document.getElementById('cp-submit').textContent = 'Submit';
+  ta.value = ''; ta.focus();
+  const btn = document.getElementById('cp-submit');
+  btn.disabled = false; btn.textContent = 'Submit';
 }
-
 function closeCommentPopup() {
   document.getElementById('comment-popup').classList.remove('show');
   pendingClick = null;
 }
-
-// Ctrl/Cmd+Enter 提交；Esc 取消
 document.getElementById('comment-text').addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitComment(); }
-  if (e.key === 'Escape') closeCommentPopup();
-});
-document.getElementById('comment-name').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('comment-text').focus();
-  if (e.key === 'Escape') closeCommentPopup();
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); submitComment(); }
+  if (e.key==='Escape') closeCommentPopup();
 });
 
-// ── 提交评论到 Figma ─────────────────────────────────────
+// ── 提交新评论 ───────────────────────────────────────────
 async function submitComment() {
-  const name = document.getElementById('comment-name').value.trim();
   const text = document.getElementById('comment-text').value.trim();
-
-  if (!name) { document.getElementById('comment-name').focus(); showToast('请先填写你的名字'); return; }
   if (!text) { document.getElementById('comment-text').focus(); return; }
+  const name = getSavedName();
+  if (!name) { openNameDialog(); return; }
 
-  const frameInfo = FIGMA_NODES[currentFrame];
-  if (!frameInfo) { showToast('❌ 此帧暂不支持评论'); return; }
+  const fi = FIGMA_NODES[currentFrame];
+  if (!fi) { showToast('❌ 此帧暂不支持评论'); return; }
 
-  saveName(name);
-
-  const { xPct, yPct } = pendingClick;
-  const figmaX = Math.round(xPct / 100 * frameInfo.w);
-  const figmaY = Math.round(yPct / 100 * frameInfo.h);
-  // 评论格式：【姓名】内容
-  const message = `【${name}】${text}`;
-
+  const {xPct, yPct} = pendingClick;
   const btn = document.getElementById('cp-submit');
-  btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  btn.disabled = true; btn.textContent = 'Submitting…';
 
   try {
-    const resp = await fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`, {
-      method: 'POST',
-      headers: { 'X-FIGMA-TOKEN': FIGMA_SVC_TOKEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        client_meta: { node_id: frameInfo.nodeId, node_offset: { x: figmaX, y: figmaY } }
-      })
+    const resp = await figmaPost({
+      message: `【${name}】${text}`,
+      client_meta: { node_id: fi.nodeId, node_offset: { x: Math.round(xPct/100*fi.w), y: Math.round(yPct/100*fi.h) } }
     });
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${resp.status}`);
-    }
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
 
     closeCommentPopup();
-    showToast(`✓ Comment submitted by ${name}`);
-    addLocalPin(xPct, yPct, `[${name}] ${text}`);
-
-  } catch (err) {
-    showToast('❌ Failed: ' + err.message);
-    btn.disabled = false;
-    btn.textContent = 'Submit';
+    showToast(`✓ ${name} 的评论已写入 Figma`);
+    addPin(document.querySelector('.frame-wrap.active'), xPct, yPct, data.id, name, text);
+    allFigmaComments.push(data);
+  } catch(err) {
+    showToast('❌ Failed: '+err.message);
+    btn.disabled=false; btn.textContent='Submit';
   }
 }
 
-// ── 本地 Pin 视觉反馈 ────────────────────────────────────
-function addLocalPin(xPct, yPct, text) {
-  const fw = document.querySelector('.frame-wrap.active');
-  if (!fw) return;
-  localPinCount++;
+// ── 添加 Pin ─────────────────────────────────────────────
+function addPin(fw, xPct, yPct, commentId, author, text) {
+  pinCount++;
   const pin = document.createElement('div');
   pin.className = 'c-pin';
-  pin.dataset.n = localPinCount;
-  pin.title = text;
-  // Pin 尖端指向点击位置
-  pin.style.left = `calc(${xPct}% - 10px)`;
-  pin.style.top  = `calc(${yPct}% - 20px)`;
+  pin.dataset.n = pinCount;
+  pin.dataset.commentId = commentId || '';
+  pin.dataset.xPct = xPct;
+  pin.dataset.yPct = yPct;
+  pin.title = `[${author}] ${text}`;
+  pin.style.left = `calc(${xPct}% - 12px)`;
+  pin.style.top  = `calc(${yPct}% - 24px)`;
   fw.appendChild(pin);
+  makePinDraggable(pin);
 }
 
-// ── Toast 通知 ───────────────────────────────────────────
-let toastTimer = null;
-function showToast(msg, duration = 3500) {
-  const t = document.getElementById('comment-toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+// ── Pin 拖拽 ─────────────────────────────────────────────
+let dragState = null;
+document.addEventListener('mousedown', e => {
+  const pin = e.target.closest('.c-pin');
+  if (!pin) return;
+  const fw = document.querySelector('.frame-wrap.active');
+  if (!fw || !fw.contains(pin)) return;
+  dragState = { pin, startX:e.clientX, startY:e.clientY, moved:false, fw, fwRect:fw.getBoundingClientRect() };
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!dragState) return;
+  const {pin, startX, startY, fw, fwRect} = dragState;
+  const dx=e.clientX-startX, dy=e.clientY-startY;
+  if (!dragState.moved && Math.abs(dx)<5 && Math.abs(dy)<5) return;
+  dragState.moved = true;
+  pin.classList.add('dragging');
+  const xPct = Math.max(0,Math.min(100,(e.clientX-fwRect.left-12)/fw.offsetWidth*100));
+  const yPct = Math.max(0,Math.min(100,(e.clientY-fwRect.top-24)/fw.offsetHeight*100));
+  pin.style.left = `calc(${xPct}% - 12px)`;
+  pin.style.top  = `calc(${yPct}% - 24px)`;
+  pin.dataset.xPct = xPct; pin.dataset.yPct = yPct;
+});
+document.addEventListener('mouseup', e => {
+  if (!dragState) return;
+  dragState.pin.classList.remove('dragging');
+  dragState = null;
+});
+function makePinDraggable(pin) { /* handled by global listeners */ }
+
+// ── 线程 Popup（点 Pin 查看） ────────────────────────────
+function openThreadPopup(pin, e) {
+  closeCommentPopup();
+  activeRootId = pin.dataset.commentId || null;
+
+  const popup = document.getElementById('thread-popup');
+  popup.classList.add('show');
+
+  // 定位：靠近 pin
+  const pr = pin.getBoundingClientRect();
+  const pw=320, ph=460;
+  let l = pr.right+8, t = pr.top-12;
+  if (l+pw > window.innerWidth-8)  l = pr.left-pw-8;
+  if (t+ph > window.innerHeight-8) t = window.innerHeight-ph-8;
+  popup.style.left = Math.max(8,l)+'px';
+  popup.style.top  = Math.max(8,t)+'px';
+
+  document.getElementById('tp-reply-input').value = '';
+  renderThread(activeRootId);
 }
+function closeThreadPopup() {
+  document.getElementById('thread-popup').classList.remove('show');
+  activeRootId = null;
+}
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeThreadPopup(); closeCommentPopup(); }
+});
+
+function renderThread(rootId) {
+  const body = document.getElementById('tp-body');
+  if (!rootId) {
+    body.innerHTML = '<div class="tp-empty">无评论数据</div>';
+    document.getElementById('tp-count').textContent = '0';
+    return;
+  }
+  // 从缓存中找根评论和回复
+  const root = allFigmaComments.find(c=>c.id===rootId);
+  const replies = allFigmaComments.filter(c=>c.parent_id===rootId);
+  const thread = root ? [root,...replies].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)) : [];
+
+  document.getElementById('tp-count').textContent = thread.length;
+
+  if (!thread.length) {
+    body.innerHTML = '<div class="tp-empty">Loading comments…</div>';
+    loadFigmaComments(currentFrame).then(()=>renderThread(rootId));
+    return;
+  }
+
+  body.innerHTML = thread.map(c => {
+    const m = c.message?.match(/^【(.+?)】([\s\S]*)$/);
+    const author = m ? m[1] : (c.user?.handle||'Unknown');
+    const text   = m ? m[2] : (c.message||'');
+    const isPlusOne = text.startsWith('👍 +1');
+    const time = c.created_at ? timeAgo(c.created_at) : '';
+    return `<div class="tp-item">
+      <div class="tp-meta"><span class="tp-author">${esc(author)}</span><span class="tp-time">${time}</span></div>
+      <div class="tp-msg${isPlusOne?' is-plusone':''}">${esc(text)}</div>
+    </div>`;
+  }).join('');
+  body.scrollTop = body.scrollHeight;
+}
+
+// ── 提交回复 ─────────────────────────────────────────────
+async function submitReply() {
+  const text = document.getElementById('tp-reply-input').value.trim();
+  if (!text || !activeRootId) return;
+  const name = getSavedName() || 'Anonymous';
+  try {
+    const resp = await figmaPost({ message:`【${name}】${text}`, parent_id: activeRootId });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message||`HTTP ${resp.status}`);
+    allFigmaComments.push(data);
+    document.getElementById('tp-reply-input').value = '';
+    renderThread(activeRootId);
+    showToast('✓ 回复已写入 Figma');
+  } catch(err) { showToast('❌ '+err.message); }
+}
+document.getElementById('tp-reply-input').addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); submitReply(); }
+});
+
+// ── 提交 +1 ──────────────────────────────────────────────
+async function submitPlusOne() {
+  if (!activeRootId) return;
+  const name = getSavedName() || 'Anonymous';
+  const btn = document.getElementById('tp-plusone');
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const resp = await figmaPost({ message:`【${name}】👍 +1`, parent_id: activeRootId });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message||`HTTP ${resp.status}`);
+    allFigmaComments.push(data);
+    renderThread(activeRootId);
+    showToast('👍 +1 已发送');
+  } catch(err) { showToast('❌ '+err.message); }
+  finally { btn.disabled=false; btn.textContent='👍 +1'; }
+}
+
+// ── 加载帧的 Figma 评论 ──────────────────────────────────
+async function loadFigmaComments(frameId) {
+  const fi = FIGMA_NODES[frameId];
+  if (!fi) return;
+  try {
+    const resp = await fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`,
+      { headers:{'X-FIGMA-TOKEN': FIGMA_SVC_TOKEN} });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    allFigmaComments = data.comments || [];
+
+    // 渲染当前帧的根评论 Pin
+    const fw = document.getElementById('fw-'+frameId);
+    if (!fw) return;
+    fw.querySelectorAll('.c-pin[data-comment-id]').forEach(p=>p.remove());
+
+    const topLevel = allFigmaComments.filter(c =>
+      (c.parent_id==='' || c.parent_id==null) && c.client_meta?.node_id===fi.nodeId
+    );
+    topLevel.forEach(c => {
+      const {x,y} = c.client_meta.node_offset||{};
+      if (x==null) return;
+      const m = c.message?.match(/^【(.+?)】([\s\S]*)$/);
+      const author = m?m[1]:(c.user?.handle||'?');
+      const text   = m?m[2]:(c.message||'');
+      addPin(fw, x/fi.w*100, y/fi.h*100, c.id, author, text);
+    });
+  } catch(e) { console.log('loadFigmaComments failed', e); }
+}
+
+// ── Figma API 工具函数 ────────────────────────────────────
+function figmaPost(body) {
+  return fetch(`https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/comments`, {
+    method:'POST',
+    headers:{'X-FIGMA-TOKEN':FIGMA_SVC_TOKEN,'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+}
+
+// ── 时间格式化 ────────────────────────────────────────────
+function timeAgo(iso) {
+  const d = Math.floor((Date.now()-new Date(iso))/1000);
+  if (d<60) return 'just now';
+  if (d<3600) return Math.floor(d/60)+'m ago';
+  if (d<86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, ms=3500) {
+  const t = document.getElementById('comment-toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+// ── 初始化：加载当前帧评论 ───────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => { resetZoom(); loadFigmaComments('f00'); }, 80);
+});
 </script>
 </body>
 </html>
