@@ -29,8 +29,11 @@
     /* ── 舞台 ── */
     #stage{
       position:fixed;top:40px;left:0;right:0;bottom:0;
-      display:flex;align-items:flex-start;justify-content:center;
-      overflow:auto;padding:24px;
+      overflow:auto;
+      /* 用 grid 代替 flex，内容始终居中 */
+      display:grid;
+      place-items:start center;
+      padding:24px;
     }
     #stage.nav-open{left:220px;}
 
@@ -882,6 +885,21 @@ function applyZoom() {
   const w = Math.round(1440*scale);
   document.querySelectorAll('.frame-wrap').forEach(fw=>fw.style.width=w+'px');
   document.getElementById('zoom-label').textContent = Math.round(scale*100)+'%';
+
+  // 垂直居中：动态调整 stage padding-top，让帧始终在正中
+  const stage = document.getElementById('stage');
+  const stageH = stage.clientHeight;
+  const fw = document.querySelector('.frame-wrap.active');
+  if (fw) {
+    // 等 DOM 更新后计算帧实际高度
+    requestAnimationFrame(() => {
+      const fc = fw.closest('.fc') || fw;
+      const fcH = fc.offsetHeight;
+      const pad = Math.max(24, Math.floor((stageH - fcH) / 2));
+      stage.style.paddingTop    = pad + 'px';
+      stage.style.paddingBottom = pad + 'px';
+    });
+  }
 }
 
 document.addEventListener('keydown',e=>{
